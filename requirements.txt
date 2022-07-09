@@ -1,0 +1,9 @@
+wheel
+psycopg2
+celery
+Django>=4.0
+gunicorn
+praw
+psaw
+python-dotenv
+redis

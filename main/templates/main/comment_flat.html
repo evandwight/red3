@@ -1,0 +1,44 @@
+{% load static %}
+{% load utils %}
+
+{% for comment in comments %}
+{% if comment|get_type == 'str' %}
+    {% if comment == "START_DIV" %}
+    <div>
+    {% else %}
+    </div>
+    {% endif %}
+{% else %}
+
+<div class="flex flex-row py-1 sm:py-4">
+    <div class="flex flex-none justify-end px-2 comment-depth-{{comment.depth|min:9}}">
+        <div class="comment-depth-color-{{comment.depth|mod:6}} w-1 h-full py-2 rounded-sm self-center"></div>
+    </div>
+    <div class="grow">
+        {% if comment.removed_from_reddit or comment.mean %}
+        <div class="flex flex-row flex-wrap justify-around py-1">
+            {% if comment.removed_from_reddit %}<div class="text-red-500 px-2">removed from reddit</div>{% endif %}
+            {% if comment.mean %}<div class="text-red-500 px-2">mean</div>{% endif %}
+        </div>
+        {% endif %}
+        <div>
+            {% if comment.hidden %}
+            <p>{{comment.hidden_reason}}</p>
+            {% else %}
+            {% include "main/components/unsafe_text.html" with nodes=comment.text|textToHtmlNodes only %}
+            {% endif %}
+        </div>
+        <div class="flex flex-row flex-wrap justify-around py-1">
+            <div class="text-gray-500 px-2">{{comment.user_name}}</div>
+            <div class="text-gray-500 px-2">{{ comment.created|timeSinceShort}}</div>
+        </div>
+        <div class="flex flex-row justify-around py-1">
+            {% commentIcons post.id comment.id comment.thing_uuid comment.vote %}
+        </div>
+        {% if not forloop.last %}
+        <hr class="border-gray-500">
+        {% endif %}
+    </div>
+</div>
+{%endif%}
+{% endfor %}

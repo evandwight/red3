@@ -1,0 +1,15 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% load utils %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<form action="{% url 'main:profile' %}" method="post">
+    {% csrf_token %}
+    <table class="text-left">
+        {{ form.as_table }}
+    </table>
+    <input class="bg-fuchsia-600 hover:bg-fuchsia-800 text-white font-bold py-2 px-4 rounded" type="submit"
+        value="Submit">
+</form>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% load utils %}
+{% block title %}Actually all{% endblock %}
+
+{% block header %}
+<div>
+    <a href="{% url 'main:submitPost' %}">
+        <img src="{% static 'main/images/add-line.svg' %}" />
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+{% if page_obj %}
+
+<ul role="list" class="divide-y divide-gray-500">
+    {% for post in page_obj %}
+    <li class="py-1 sm:py-4">
+        {% if post.nsfw or post.mean %}
+        <div class="flex flex-row justify-around py-1">
+            {% if post.nsfw %}
+            <div class="text-red-600">nsfw</div>
+            {% endif %}    
+            {% if post.mean %}
+            <div class="text-red-600">mean</div>
+            {% endif %}    
+        </div>
+        {% endif %}
+        <div>
+            {{ post.title }}
+        </div>
+        <div class="flex flex-row justify-around py-1">
+            <div class="text-gray-500 basis-full px-2 text-center">{{post.subreddit_name_prefixed|default:"mm"}}</div>
+            <div class="text-gray-500 basis-full px-2 text-center">{{post.user_name|default:"anon"}}</div>
+            <div class="text-gray-500 basis-full px-2 text-center">{{post.created|timeSinceShort}}</div>
+        </div>
+        <div class="flex flex-row justify-around py-1">
+            <div>{% include "main/components/vote-up-icon.html" with id=post.thing_uuid vote=post.vote only %}</div>
+            <div>{% include "main/components/vote-down-icon.html" with id=post.thing_uuid vote=post.vote only %}</div>
+            <div>{% include "main/components/icon-link.html" with link=post.external_link svg="link" only %}</div>
+            <div>{% include "main/components/icon-link.html" with link=post.reddit_link svg="reddit-line"  only %}</div>
+            <div>{% include "main/components/icon-link.html" with link="main:detail"|url2:post.id svg="discuss-line"  only %}</div>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+<hr class="border-gray-500">
+<div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+        <a href="?page=1">&laquo; first</a>
+        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">next</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+{% else %}
+<p>No posts are available.</p>
+{% endif %}
+
+{% endblock %}
+</body>
+
+</html>

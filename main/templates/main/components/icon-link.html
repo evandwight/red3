@@ -1,0 +1,9 @@
+{% load static %}
+
+{% if link %}
+<a href="{{link}}">
+    <img src="{% static 'main/images/'|add:svg|add:'.svg'%}" class="w-4" />
+</a>
+{% else %}
+<img src="{% static 'main/images/'|add:svg|add:'-gray.svg'%}" class="w-4" />
+{% endif %}

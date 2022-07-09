@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+#custom
+.env
+tailbuild/tailwindcss
+celerybeat-schedule.db
