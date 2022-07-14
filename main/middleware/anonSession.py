@@ -10,7 +10,9 @@ def anonSessionMiddleware(get_response):
     def middleware(request):
         # Code to be executed for each request before
         # the view (and later middleware) are called.
-        if request.method == 'POST' and not request.user.is_authenticated:
+        if request.method == 'POST' \
+                and not request.user.is_authenticated \
+                and  request.path == '/account/login/':
             user = User.objects.create_user(username=f'anon-{uuid.uuid4()}')
             user.save()
             user.username = f'anon-{user.id}'

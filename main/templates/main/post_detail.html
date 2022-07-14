@@ -47,6 +47,8 @@
         <div>{% include "main/components/icon-link.html" with link=post.external_link svg="link" only %}</div>
         <div>{% include "main/components/icon-link.html" with link=post.reddit_link svg="reddit-line"  only %}</div>
         <div>{% include "main/components/icon-link.html" with link="main:detail"|url2:post.id svg="discuss-line"  only %}</div>
+        {% url "main:submitComment" post.id as submitCommentUrl %}
+        <div>{% include "main/components/icon-link.html" with link=submitCommentUrl svg="reply-line" only %}</div>
     </div>
 </div>
 <hr class="border-gray-500">
