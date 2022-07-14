@@ -24,13 +24,11 @@
                 </div>
                 <div class="ml-auto flex flex-row justify-around">
                     {% block header %}{% endblock %}
-                    {% if user.is_authenticated %}
                     <div class="pl-2">
                         <a href="{% url 'main:profile' %}">
                             <img src="{% static 'main/images/user-settings-line.svg' %}" />
                         </a>
                     </div>
-                    {% endif %}
                     <div class="pl-2">
                         {% if user.is_authenticated %}
                         <a href="{% url 'logout' %}">

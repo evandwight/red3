@@ -11,7 +11,7 @@ from django.db.models import F
 from django.db.models.functions import Extract, Log, Greatest, Abs, Sign
 from django.core.paginator import Paginator
 from ..forms import ProfileForm
-from django.core.cache import cache
+from ..utils import rateLimit
 
 
 def listing(request):
@@ -44,17 +44,10 @@ def applyVotes(things, userId):
         obj.vote = votes.get(obj.thing_uuid)
 
 def loadRedditComments(request, pk):
-    KEY = 'loadRedditCommentsCount'
-    count = cache.get_or_set(KEY, 0, timeout=60)
+    limitResponse = rateLimit('loadRedditCommentsCount', 1)
+    if limitResponse:
+        return limitResponse
     
-    if count > 0:
-        return HttpResponse(content="Too many requests", status=429)
-    else:
-        try:
-            cache.incr(KEY, delta=1)
-        except:
-            pass # between getting the key and incrementing the key it could expire.  
-
     res = updateRedditComments.delay(pk)
     return HttpResponseRedirect(reverse('main:viewTask', args=[res.id]))
 
@@ -75,9 +68,9 @@ def editProfile(request):
         form = ProfileForm(request.POST, instance=getProfile(request.user))
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('')
+            return HttpResponseRedirect(reverse('main:profile'))
     else:
-        form = ProfileForm()
+        form = ProfileForm(instance = getProfileOrDefault(request))
 
     return render(request, 'main/profile.html', {'form': form})
 

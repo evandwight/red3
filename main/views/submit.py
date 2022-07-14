@@ -4,6 +4,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
+from main.utils import rateLimitByIp
+
 from ..models import Post, Comment
 from ..forms import PostForm, CommentForm
 from django.http import HttpResponseRedirect
@@ -21,13 +23,16 @@ def hs_check_comment(comment):
   response = requests.post("https://api.moderatehatespeech.com/api/v1/toxic/", json=data).json()
   return response['response'] == "Success" and response["class"] == "flag" and float(response["confidence"]) > 0.9
 
-
 def submitPost(request):
     renderForm = lambda form: render(request, 'main/submitPost.html', {'form': form})
 
     if not request.method == 'POST':
         return renderForm(PostForm())
     else:
+        limitReponse = rateLimitByIp(request, 'submitPostRequest', 5)
+        if limitReponse:
+            return limitReponse
+
         form = PostForm(request.POST)
         if form.is_valid():
             title = form.cleaned_data['title']
@@ -48,6 +53,10 @@ def submitPost(request):
                 form.fields['overrideMeanTag'].widget = forms.widgets.CheckboxInput()
                 return renderForm(form)
 
+            limitReponse = rateLimitByIp(request, 'submitPostSave', 1)
+            if limitReponse:
+                return limitReponse
+
             dbPost = Post(
                 title = title,
                 text = text,
@@ -67,6 +76,10 @@ def submitComment(request, postId, commentId=None):
     if not request.method == 'POST':
         return renderForm(CommentForm())
     else:
+        limitReponse = rateLimitByIp(request, 'submitCommentRequest', 5)
+        if limitReponse:
+            return limitReponse
+
         form = CommentForm(request.POST)
         if form.is_valid():
             text = form.cleaned_data['text']
@@ -80,6 +93,10 @@ def submitComment(request, postId, commentId=None):
                 form.add_error(None,"Warning: mean. Change your comment, override the tag or submit anyways")
                 form.fields['overrideMeanTag'].widget = forms.widgets.CheckboxInput()
                 return renderForm(form)
+
+            limitReponse = rateLimitByIp(request, 'submitCommentSave', 1)
+            if limitReponse:
+                return limitReponse
 
             if commentId is None:
                 parent = None

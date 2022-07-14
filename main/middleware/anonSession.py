@@ -2,6 +2,7 @@ import uuid
 from ..models import Profile, User
 from django.contrib.auth import login
 from django.http import JsonResponse
+from ..utils import get_client_ip
 
 
 def anonSessionMiddleware(get_response):
@@ -12,7 +13,7 @@ def anonSessionMiddleware(get_response):
         # the view (and later middleware) are called.
         if request.method == 'POST' \
                 and not request.user.is_authenticated \
-                and  request.path == '/account/login/':
+                and not request.path == '/account/login/':
             user = User.objects.create_user(username=f'anon-{uuid.uuid4()}')
             user.save()
             user.username = f'anon-{user.id}'
@@ -31,12 +32,3 @@ def anonSessionMiddleware(get_response):
         return response
 
     return middleware
-
-
-def get_client_ip(request):
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
