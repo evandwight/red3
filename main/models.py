@@ -1,4 +1,3 @@
-from ipaddress import ip_address
 from pickle import TRUE
 import json
 from django.forms.models import model_to_dict
@@ -8,6 +7,7 @@ from django.contrib.auth.models import User
 import uuid
 
 from django.contrib.auth.models import AbstractUser
+from django.contrib import admin
 
 
 class User(AbstractUser):
@@ -89,3 +89,9 @@ class Vote(models.Model):
                 fields=['user', 'thing_uuid'], name="unique_user_thing_combination"
             )
         ]
+
+admin.site.register(User)
+admin.site.register(Profile)
+admin.site.register(Post)
+admin.site.register(Comment)
+admin.site.register(Vote)
