@@ -11,9 +11,11 @@ from django.db.models import F
 from django.db.models.functions import Extract, Log, Greatest, Abs, Sign
 from django.core.paginator import Paginator
 from ..forms import ProfileForm
-from ..utils import rateLimit, rateLimitByIp
+from ..utils import rateLimit, rateLimitByIp, conditional_cache
+from django.views.decorators.cache import cache_page
 
 
+@conditional_cache(decorator=cache_page(60))
 def listing(request):
     profile = getProfileOrDefault(request)
     querySet = Post.objects.get_queryset()

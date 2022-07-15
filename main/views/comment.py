@@ -3,7 +3,8 @@ from ..models import Post, Comment, Vote, Profile
 from .views import getProfileOrDefault, applyVotes
 from django.http import HttpResponseNotFound, JsonResponse
 from django.shortcuts import render
-from django.core.cache import cache
+from ..utils import conditional_cache
+from django.views.decorators.cache import cache_page
 
 def flattenComments(commentForest, depth):
     flatComments = []
@@ -43,6 +44,7 @@ def applyProfile(comments, profile):
             comment.hidden_reason = '[hiding mean]'
 
 
+@conditional_cache(decorator=cache_page(60))
 def postDetails(request, pk):
     post = Post.objects.filter(id=pk).first()
     if not post:
