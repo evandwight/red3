@@ -28,7 +28,13 @@
         </div>
         {% endif %}
         <div>
-            {{ post.title }}
+            {%if post.external_link %}
+            <a href="{{post.external_link}}">
+            {%else%}
+            <a href="{{'main:detail'|url2:post.id}}">
+            {%endif%}
+                {{ post.title }}
+            </a>
         </div>
         <div class="flex flex-row justify-around py-1">
             <div class="text-gray-500 basis-full px-2 text-center">{{post.subreddit_name_prefixed|default:"mm"}}</div>
