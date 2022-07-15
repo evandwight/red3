@@ -92,6 +92,13 @@ class Vote(models.Model):
 
 admin.site.register(User)
 admin.site.register(Profile)
-admin.site.register(Post)
-admin.site.register(Comment)
+
+@admin.register(Post)
+class PostAdmin(admin.ModelAdmin):
+    list_filter = ('is_local',)
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_filter = ('is_local',)
+
 admin.site.register(Vote)
