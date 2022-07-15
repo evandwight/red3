@@ -95,10 +95,10 @@ admin.site.register(Profile)
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_filter = ('is_local',)
+    list_filter = ('is_local', "override_mean")
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_filter = ('is_local',)
+    list_filter = ('is_local', "override_mean")
 
 admin.site.register(Vote)
