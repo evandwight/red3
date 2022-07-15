@@ -44,7 +44,7 @@ def applyProfile(comments, profile):
             comment.hidden_reason = '[hiding mean]'
 
 
-@conditional_cache(decorator=cache_page(60))
+# @conditional_cache(decorator=cache_page(60))
 def postDetails(request, pk):
     post = Post.objects.filter(id=pk).first()
     if not post:
