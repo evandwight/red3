@@ -11,7 +11,7 @@ from django.db.models import F
 from django.db.models.functions import Extract, Log, Greatest, Abs, Sign
 from django.core.paginator import Paginator
 from ..forms import ProfileForm
-from ..utils import rateLimit
+from ..utils import rateLimit, rateLimitByIp
 
 
 def listing(request):
@@ -44,7 +44,11 @@ def applyVotes(things, userId):
         obj.vote = votes.get(obj.thing_uuid)
 
 def loadRedditComments(request, pk):
-    limitResponse = rateLimit('loadRedditCommentsCount', 1)
+    limitResponse = rateLimit('loadRedditCommentsCount', 30)
+    if limitResponse:
+        return limitResponse
+
+    limitResponse = rateLimitByIp(request, 'loadRedditCommentsIp', 2)
     if limitResponse:
         return limitResponse
     
