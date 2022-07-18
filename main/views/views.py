@@ -1,9 +1,8 @@
-from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
 from ..models import Post, Profile, Vote
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from django.contrib.auth.models import User
 from ..tasks import updateRedditComments
 from celery.result import AsyncResult
@@ -46,6 +45,9 @@ def applyVotes(things, userId):
         obj.vote = votes.get(obj.thing_uuid)
 
 def loadRedditComments(request, pk):
+    if Post.objects.get(pk).is_local:
+        return HttpResponseNotFound()
+        
     limitResponse = rateLimit('loadRedditCommentsCount', 30)
     if limitResponse:
         return limitResponse

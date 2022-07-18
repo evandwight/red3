@@ -76,6 +76,8 @@ def getComments(submissionId):
 @shared_task
 def updateRedditComments(id):
     post = Post.objects.get(id=id)
+    if post.is_local:
+        return
     comments = getComments(post.reddit_id)
     comments.sort(key=lambda comment: comment.depth)
     for comment in comments:
@@ -104,7 +106,7 @@ def updateSomeComments():
     query = """
 SELECT main_post.id 
 FROM main_post LEFT JOIN main_comment ON main_post.id = post_id_id 
-WHERE post_id_id is NULL 
+WHERE post_id_id is NULL and main_post.is_local = False
 ORDER BY main_post.created desc 
 LIMIT 5"""
     ids = [post.id for post in Post.objects.raw(query)]
