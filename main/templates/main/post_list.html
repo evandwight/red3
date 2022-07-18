@@ -57,7 +57,7 @@
                 <div id="reddit-link-{{post.id}}">{% include "main/components/icon-link.html" with link=post.reddit_link svg="reddit-line"  only %}</div>
                 <div>{% include "main/components/icon-link.html" with link="main:detail"|url2:post.id svg="discuss-line"  only %}</div>
                 <div>
-                {% if post.text or post.external_link|isUrl%}
+                {% if post.text or post.external_link|isLoadable%}
                 <img src="{% static 'main/images/aspect-ratio-line.svg'%}" class="w-6 onclick-expand" data-post-id="{{post.id}}"/>
                 {% else %}
                 <img src="{% static 'main/images/aspect-ratio-line-gray.svg'%}" class="w-6" />

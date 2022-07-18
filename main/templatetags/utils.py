@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from django.urls import reverse
 from django.utils.html import format_html
 from django.core.validators import URLValidator
+import re
 
 register = template.Library()
 
@@ -74,6 +75,13 @@ def url2(a,b):
 @register.filter
 def isUrl(text):
     return text and URLValidator().regex.match(text) is not None
+
+@register.filter
+def isLoadable(url):
+    if url.startswith("https://v.redd.it/"):
+        return True
+    else:
+        return re.match(r'^https?:\/\/.+\.(jpg|jpeg|png|webp|avif|svg)$', url) is not None
 
 @register.filter
 def textToHtmlNodes(text):

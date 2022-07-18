@@ -6,28 +6,28 @@ function vote(event) {
     var element = event.currentTarget;
     var url = element.getAttribute("href");
     var id = element.children[0].getAttribute("id").substring("vote-up-".length)
-    var upImg = document.getElementById('vote-up-'+id)
-    var downImg = document.getElementById('vote-dn-'+id)
+    var upImg = document.getElementById('vote-up-' + id)
+    var downImg = document.getElementById('vote-dn-' + id)
 
     function imageSrc(isUp, isActive) {
-       return `/static/main/images/arrow-${isUp ? "up" : "down"}-line${isActive ? "-active" : "" }.svg`
-    } 
+        return `/static/main/images/arrow-${isUp ? "up" : "down"}-line${isActive ? "-active" : ""}.svg`
+    }
 
 
     const request = new Request(
         url,
         {
             method: 'POST',
-            headers: {'X-CSRFToken': csrftoken},
+            headers: { 'X-CSRFToken': csrftoken },
             mode: 'same-origin' // Do not send CSRF token to another domain.
         }
     );
 
     fetch(request).then(function (response) {
-         return response.json() 
+        return response.json()
     }).then(function (data) {
         if (data.reload) {
-            location.reload(); 
+            location.reload();
             return;
         }
         var newDirection = data.direction;
@@ -50,15 +50,15 @@ function vote(event) {
 
 function isValidHttpUrl(string) {
     let url;
-    
+
     try {
-      url = new URL(string);
+        url = new URL(string);
     } catch (_) {
-      return false;  
+        return false;
     }
-  
+
     return url.protocol === "http:" || url.protocol === "https:";
-  }
+}
 
 function getIconHref(divElementId) {
     try {
@@ -85,7 +85,7 @@ function expand(event) {
             if (redditUrl.startsWith('https://reddit.com')) {
                 redditUrl = redditUrl.replace("https://reddit.com", "https://www.reddit.com")
             }
-            fetch(new Request(redditUrl+".json")).then(function (response) {
+            fetch(new Request(redditUrl + ".json")).then(function (response) {
                 return response.json();
             }).then(function (json) {
                 var videoSrc = json[0].data.children[0].data.secure_media.reddit_video.fallback_url;
@@ -93,30 +93,23 @@ function expand(event) {
                 video.style = "width: 75%; max-height: 100vh; margin-left: auto; margin-right: auto;";
                 video.controls = true;
                 video.loop = true;
-                var source = document.createElement("source"); 
+                var source = document.createElement("source");
                 source.type = "video/mp4";
                 source.src = videoSrc;
                 video.appendChild(source);
                 video.autoplay = true;
                 expandElement.innerHTML = '';
-                expandElement.appendChild( video );
+                expandElement.appendChild(video);
                 video.load();
             });
+        } else if (/^https?:\/\/.+\.(jpg|jpeg|png|webp|avif|svg)$/.test(url)) {
+            var img = document.createElement('img');
+            img.style = "max-width: 75%; max-height: 100vh; margin-left: auto; margin-right: auto;";
+            img.src = url;
+            expandElement.innerHTML = '';
+            expandElement.appendChild(img);
         } else {
-            fetch(new Request(url)).then(function (response) {
-                var contentType = response.headers.get('content-type');
-                if (contentType.startsWith("image") && contentType != "image/gif") {
-                    var img = document.createElement('img');
-                    img.style = "max-width: 75%; max-height: 100vh; margin-left: auto; margin-right: auto;";
-                    img.src = url;
-                    expandElement.innerHTML = '';
-                    expandElement.appendChild( img );
-                } else {
-                    expandElement.innerText = "Cannot load content";
-                }  
-            }).catch(function(error) {
-                expandElement.innerText = "Cannot load content";
-            })
+            expandElement.innerText = "Cannot load content";
         }
     }
 
