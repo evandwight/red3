@@ -106,14 +106,11 @@ function expand(event) {
             fetch(new Request(url)).then(function (response) {
                 var contentType = response.headers.get('content-type');
                 if (contentType.startsWith("image") && contentType != "image/gif") {
-                    return response.blob().then(function(blob) {
-                        var img = document.createElement('img');
-                        img.style = "max-width: 75%; max-height: 100vh; margin-left: auto; margin-right: auto;";
-                        img.src = URL.createObjectURL(blob);
-                        expandElement.innerHTML = '';
-                        expandElement.appendChild( img );
-
-                    });
+                    var img = document.createElement('img');
+                    img.style = "max-width: 75%; max-height: 100vh; margin-left: auto; margin-right: auto;";
+                    img.src = url;
+                    expandElement.innerHTML = '';
+                    expandElement.appendChild( img );
                 } else {
                     expandElement.innerText = "Cannot load content";
                 }  
