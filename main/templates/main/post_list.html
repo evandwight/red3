@@ -28,7 +28,7 @@
         {% endif %}
         <div class="flex flex-row flex-wrap justify-start py-1">
             <div class="px-2 grow basis-0 flex justify-center">
-                {% if post.thumbnail %}
+                {% if post.thumbnail|isUrl %}
                     <img class="max-w-none h-min" width="70" height="70" src="{{post.thumbnail}}"/>
                 {% else %}
                     <img class="max-w-none h-min" width="70" height="70" src="{% static 'main/images/text.svg' %}"/>
@@ -53,10 +53,27 @@
             <div class="flex flex-row justify-around py-1 sm:w-1/2 lg:w-1/3">
                 <div>{% include "main/components/vote-up-icon.html" with id=post.thing_uuid vote=post.vote only %}</div>
                 <div>{% include "main/components/vote-down-icon.html" with id=post.thing_uuid vote=post.vote only %}</div>
-                <div>{% include "main/components/icon-link.html" with link=post.external_link svg="link" only %}</div>
-                <div>{% include "main/components/icon-link.html" with link=post.reddit_link svg="reddit-line"  only %}</div>
+                <div id="external-link-{{post.id}}">{% include "main/components/icon-link.html" with link=post.external_link svg="link" only %}</div>
+                <div id="reddit-link-{{post.id}}">{% include "main/components/icon-link.html" with link=post.reddit_link svg="reddit-line"  only %}</div>
                 <div>{% include "main/components/icon-link.html" with link="main:detail"|url2:post.id svg="discuss-line"  only %}</div>
+                <div>
+                {% if post.text or post.external_link|isUrl%}
+                <img src="{% static 'main/images/aspect-ratio-line.svg'%}" class="w-6 onclick-expand" data-post-id="{{post.id}}"/>
+                {% else %}
+                <img src="{% static 'main/images/aspect-ratio-line-gray.svg'%}" class="w-6" />
+                {% endif %}
+                </div>
             </div>
+        </div>
+
+        <div class="w-full border-dashed border-fuchsia-600 border-2" id="expand-{{post.id}}" hidden>
+            {% if post.text %}
+            <div class="w-3/4 mx-auto text-left">
+                {% include "main/components/unsafe_text.html" with nodes=post.text|textToHtmlNodes only %}
+            </div>
+            {%else%}
+            <div class="text-center">No content</div>
+            {%endif%}
         </div>
     </li>
     {% endfor %}

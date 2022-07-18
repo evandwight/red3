@@ -2,6 +2,7 @@ from django import template
 from datetime import datetime, timezone
 from django.urls import reverse
 from django.utils.html import format_html
+from django.core.validators import URLValidator
 
 register = template.Library()
 
@@ -69,6 +70,10 @@ def invertBoolean(value):
 @register.filter
 def url2(a,b):
     return reverse(a, args=[b])
+
+@register.filter
+def isUrl(text):
+    return text and URLValidator().regex.match(text) is not None
 
 @register.filter
 def textToHtmlNodes(text):
