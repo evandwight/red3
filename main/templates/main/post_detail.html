@@ -64,7 +64,7 @@
                 <form action="{% url 'main:loadRedditComments' post.id %}" method="post">
                     {% csrf_token %}
                     <button title="refresh comments" type="submit">
-                        <img  src="{% static 'main/images/refresh-line.svg' %}" width=24 height=24 />
+                        <img  src="{% static 'main/images/refresh-line.svg' %}" class="w-6" width=24 height=24 />
                     </button>
                 </form>
             </div>
