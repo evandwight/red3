@@ -3,52 +3,76 @@
 {% load utils %}
 {% block title %}Post - {{post.title}}{% endblock %}
 
-{% block header %}
-<div>
-    {% if not post.is_local %}
-    <form action="{% url 'main:loadRedditComments' post.id %}" method=" post">
-        {% csrf_token %}
-        <button type="submit">
-            <img src="{% static 'main/images/refresh-line.svg' %}" />
-        </button>
-    </form>
-    {% endif %}
-</div>
-{% endblock %}
-
 {% block content %}
 <div class="py-1 sm:py-4">
     {% if post.nsfw or post.mean %}
-    <div class="flex flex-row justify-around py-1">
+    <div class="flex flex-row justify-around flex-wrap py-1">
         {% if post.nsfw %}
         <div class="text-red-600">nsfw</div>
-        {% endif %}    
+        {% endif %}
         {% if post.mean %}
         <div class="text-red-600">mean</div>
-        {% endif %}    
+        {% endif %}
     </div>
     {% endif %}
-    <div>
-        {{ post.title }}
+    <div class="flex flex-row flex-wrap justify-start py-1">
+        <div class="px-2 grow basis-0 flex justify-center">
+            {% if post.thumbnail|isUrl %}
+                <img class="max-w-none h-min" width="70" height="70" src="{{post.thumbnail}}"/>
+            {% else %}
+                <img class="max-w-none h-min" width="70" height="70" src="{% static 'main/images/text.svg' %}"/>
+            {% endif %}
+        </div>
+        <div class="grow basis-1/2 sm:basis-4/5">
+            {%if post.external_link %}
+            <a href="{{post.external_link}}">
+            {%else%}
+            <a href="{{'main:detail'|url2:post.id}}">
+            {%endif%}
+                {{ post.title }}
+            </a>
+        </div>
     </div>
     <div class="w-3/4 mx-auto">
         {% if post.text %}
         {% include "main/components/unsafe_text.html" with nodes=post.text|textToHtmlNodes only %}
         {% endif %}
     </div>
-    <div class="flex flex-row flex-wrap justify-around py-1">
-        <div class="text-gray-500 px-2 text-center">{{post.subreddit_name_prefixed|default:"mm"}}</div>
-        <div class="text-gray-500 px-2 text-center">{{post.user_name|default:"anon"}}</div>
-        <div class="text-gray-500 px-2 text-center">{{ post.created|timeSinceShort }}</div>
+    <div class="flex flex-row flex-wrap justify-around py-1 text-gray-500 text-center">
+        <div>{{post.subreddit_name_prefixed|default:"mm"}}</div>
+        <div>{{post.user_name|default:"anon"}}</div>
+        <div>{{post.created|timeSinceShort}}</div>
     </div>
-    <div class="flex flex-row justify-around py-1">
-        <div>{% include "main/components/vote-up-icon.html" with id=post.thing_uuid vote=post.vote only %}</div>
-        <div>{% include "main/components/vote-down-icon.html" with id=post.thing_uuid vote=post.vote only %}</div>
-        <div>{% include "main/components/icon-link.html" with link=post.external_link svg="link" only %}</div>
-        <div>{% include "main/components/icon-link.html" with link=post.reddit_link svg="reddit-line"  only %}</div>
-        <div>{% include "main/components/icon-link.html" with link="main:detail"|url2:post.id svg="discuss-line"  only %}</div>
-        {% url "main:submitComment" post.id as submitCommentUrl %}
-        <div>{% include "main/components/icon-link.html" with link=submitCommentUrl svg="reply-line" only %}</div>
+    <div class="sm:flex sm:flex-row sm:justify-end">
+        <div class="flex flex-row justify-around py-1 sm:w-1/2 lg:w-1/3">
+            <div>{% include "main/components/vote-up-icon.html" with id=post.thing_uuid vote=post.vote only %}</div>
+            <div>{% include "main/components/vote-down-icon.html" with id=post.thing_uuid vote=post.vote only %}</div>
+            <div id="external-link-{{post.id}}">{% include "main/components/icon-link.html" with link=post.external_link svg="link" title="external link" only %}</div>
+            <div id="reddit-link-{{post.id}}">{% include "main/components/icon-link.html" with link=post.reddit_link svg="reddit-line" title="reddit link"  only %}</div>
+            <div>{% include "main/components/icon-link.html" with link="main:detail"|url2:post.id svg="discuss-line" title="view comments" only %}</div>
+            <div>
+            {% if post.text or post.external_link|isLoadable%}
+            <img title="load content" src="{% static 'main/images/aspect-ratio-line.svg'%}" class="w-6 onclick-expand" data-post-id="{{post.id}}" width=24 height=24 />
+            {% else %}
+            <img src="{% static 'main/images/aspect-ratio-line-gray.svg'%}" class="w-6" width=24 height=24  />
+            {% endif %}
+            </div>
+            {% url "main:submitComment" post.id as submitCommentUrl %}
+            <div>{% include "main/components/icon-link.html" with link=submitCommentUrl svg="reply-line" title="submit comment" only %}</div>
+            {% if not post.is_local %}
+            <div>
+                <form action="{% url 'main:loadRedditComments' post.id %}" method="post">
+                    {% csrf_token %}
+                    <button title="refresh comments" type="submit">
+                        <img  src="{% static 'main/images/refresh-line.svg' %}" width=24 height=24 />
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="w-full border-dashed border-fuchsia-600 border-2 text-center" id="expand-{{post.id}}" hidden>
+        No content
     </div>
 </div>
 <hr class="border-gray-500">

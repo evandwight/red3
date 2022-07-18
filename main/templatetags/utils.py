@@ -17,18 +17,18 @@ def commentIcons(postId, commentId, thing_uuid, vote):
     downActive = "-active" if vote == "DN" else ""
     html = """
 <div>
-    <a href="{}" class="onclick-vote">
-        <img src="/static/main/images/arrow-up-line{}.svg" class="w-6" id="vote-up-{}"/>
+    <a href="{}" title="up vote" class="onclick-vote">
+        <img src="/static/main/images/arrow-up-line{}.svg" class="w-6" id="vote-up-{}" width=24 height=24/>
     </a>
 </div>
 <div>
-    <a href="{}" class="onclick-vote">
-        <img src="/static/main/images/arrow-down-line{}.svg" class="w-6" id="vote-dn-{}"/>
+    <a href="{}" title="down vote" class="onclick-vote">
+        <img src="/static/main/images/arrow-down-line{}.svg" class="w-6" id="vote-dn-{}" width=24 height=24/>
     </a>
 </div>
 <div>
-    <a href="{}">
-        <img src="/static/main/images/reply-line.svg" class="w-6" />
+    <a href="{}" title="reply">
+        <img src="/static/main/images/reply-line.svg" class="w-6" width=24 height=24/>
     </a>
 </div>
 """

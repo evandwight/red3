@@ -1,7 +1,7 @@
 {% load static %}
 {% load utils %}
 
-<a href="{{'main:upvote'|url2:id}}" class="onclick-vote">
+<a title="up vote" href="{{'main:upvote'|url2:id}}" class="onclick-vote">
     {% if vote == "UP" %}
     <img src="{% static 'main/images/arrow-up-line-active.svg'%}" class="w-6" id="vote-up-{{id}}"/>
     {% else %}

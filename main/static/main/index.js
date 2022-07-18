@@ -76,8 +76,7 @@ function expand(event) {
     var isUrl = isValidHttpUrl(url);
     var redditUrl = getIconHref(`reddit-link-${postId}`);
     var expandElement = document.getElementById(`expand-${postId}`)
-    if (!expandElement.getAttribute("data-has-been-expanded") && isUrl) {
-        expandElement.setAttribute("data-has-been-expanded", true)
+    if (expandElement.children.length == 0 && isUrl) {
         expandElement.innerText = "Loading";
 
         if (url.startsWith("https://v.redd.it/")) {
