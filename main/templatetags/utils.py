@@ -92,5 +92,9 @@ def isLoadable(url):
         return re.match(r'^https?:\/\/.+\.(jpg|jpeg|png|webp|avif|svg)$', url) is not None
 
 @register.filter
+def isImageUrl(url):
+    return re.match(r'^https?:\/\/.+\.(jpg|jpeg|png|webp|avif|svg)$', url) is not None
+
+@register.filter
 def textToHtmlNodes(text):
     return [dict(type="p", content=x) for x in text.split('\n\n')]

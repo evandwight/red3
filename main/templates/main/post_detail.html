@@ -47,7 +47,7 @@
             <div>{% include "main/components/icon-link.html" with link="main:detail"|url2:post.id svg="discuss-line" title="view comments" only %}</div>
             <div>
             {% if post.text or post.external_link|isLoadable%}
-            <img title="load content" src="{% static 'main/images/aspect-ratio-line.svg'%}" class="w-6 onclick-expand" data-post-id="{{post.id}}" width=24 height=24 />
+            <img title="load content" src="{% static 'main/images/aspect-ratio-line.svg'%}" class="w-6 onclick-expand auto-expand" data-post-id="{{post.id}}" width=24 height=24 />
             {% else %}
             <img src="{% static 'main/images/aspect-ratio-line-gray.svg'%}" class="w-6" width=24 height=24  />
             {% endif %}
@@ -67,7 +67,11 @@
         </div>
     </div>
     <div class="w-full border-dashed border-fuchsia-600 border-2 text-center" id="expand-{{post.id}}" hidden>
+        {%if post.external_link|isImageUrl%}
+        <img src="{{post.external_link}}" loading="lazy" style="max-width: 75%; max-height: 100vh; margin-left: auto; margin-right: auto;"/>
+        {%else%}
         No content
+        {%endif%}
     </div>
 </div>
 <hr class="border-gray-500">

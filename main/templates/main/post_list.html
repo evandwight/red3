@@ -68,6 +68,8 @@
             <div class="w-3/4 mx-auto text-left">
                 {% include "main/components/unsafe_text.html" with nodes=post.text|textToHtmlNodes only %}
             </div>
+            {%elif post.external_link|isImageUrl%}
+            <img src="{{post.external_link}}" loading="lazy" style="max-width: 75%; max-height: 100vh; margin-left: auto; margin-right: auto;"/>
             {%else%}
             No content
             {%endif%}

@@ -48,18 +48,6 @@ function vote(event) {
     });
 }
 
-function isValidHttpUrl(string) {
-    let url;
-
-    try {
-        url = new URL(string);
-    } catch (_) {
-        return false;
-    }
-
-    return url.protocol === "http:" || url.protocol === "https:";
-}
-
 function getIconHref(divElementId) {
     try {
         return document.getElementById(divElementId).children[0].getAttribute('href');
@@ -68,48 +56,42 @@ function getIconHref(divElementId) {
     }
 }
 
+function tryToLoadVideo(expandElement, redditUrl) {
+    expandElement.innerText = "Loading";
+    // https://reddit.com does not allow cors
+    if (redditUrl.startsWith('https://reddit.com')) {
+        redditUrl = redditUrl.replace("https://reddit.com", "https://www.reddit.com")
+    }
+    fetch(new Request(redditUrl + ".json")).then(function (response) {
+        return response.json();
+    }).then(function (json) {
+        var videoSrc = json[0].data.children[0].data.secure_media.reddit_video.fallback_url;
+        var video = document.createElement('video');
+        video.style = "width: 75%; max-height: 100vh; margin-left: auto; margin-right: auto;";
+        video.controls = true;
+        video.loop = true;
+        video.autoplay = true;
+        var source = document.createElement("source");
+        source.type = "video/mp4";
+        source.src = videoSrc;
+        video.appendChild(source);
+        expandElement.innerHTML = '';
+        expandElement.appendChild(video);
+        video.load();
+    }).catch(function(error) {
+        expandElement.innerText = "Cannot load video";
+    });
+}
+
 function expand(event) {
     event.preventDefault();
     var element = event.currentTarget;
     var postId = element.getAttribute("data-post-id");
     var url = getIconHref(`external-link-${postId}`);
-    var isUrl = isValidHttpUrl(url);
     var redditUrl = getIconHref(`reddit-link-${postId}`);
     var expandElement = document.getElementById(`expand-${postId}`)
-    if (expandElement.children.length == 0 && isUrl) {
-        expandElement.innerText = "Loading";
-
-        if (url.startsWith("https://v.redd.it/")) {
-            // https://reddit.com does not allow cors
-            if (redditUrl.startsWith('https://reddit.com')) {
-                redditUrl = redditUrl.replace("https://reddit.com", "https://www.reddit.com")
-            }
-            fetch(new Request(redditUrl + ".json")).then(function (response) {
-                return response.json();
-            }).then(function (json) {
-                var videoSrc = json[0].data.children[0].data.secure_media.reddit_video.fallback_url;
-                var video = document.createElement('video');
-                video.style = "width: 75%; max-height: 100vh; margin-left: auto; margin-right: auto;";
-                video.controls = true;
-                video.loop = true;
-                var source = document.createElement("source");
-                source.type = "video/mp4";
-                source.src = videoSrc;
-                video.appendChild(source);
-                video.autoplay = true;
-                expandElement.innerHTML = '';
-                expandElement.appendChild(video);
-                video.load();
-            });
-        } else if (/^https?:\/\/.+\.(jpg|jpeg|png|webp|avif|svg)$/.test(url)) {
-            var img = document.createElement('img');
-            img.style = "max-width: 75%; max-height: 100vh; margin-left: auto; margin-right: auto;";
-            img.src = url;
-            expandElement.innerHTML = '';
-            expandElement.appendChild(img);
-        } else {
-            expandElement.innerText = "Cannot load content";
-        }
+    if (expandElement.children.length == 0 && url.startsWith("https://v.redd.it/")) {
+        tryToLoadVideo(expandElement, redditUrl);
     }
 
     expandElement.hidden = !expandElement.hidden
