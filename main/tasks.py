@@ -49,7 +49,7 @@ def updateAllListing():
                 thumbnail=redditPost.thumbnail,
                 )
         dbPost.save()
-
+    
 def getComments(submissionId):
     comments = reddit.submission(submissionId).comments
     comments.replace_more(limit=0)
@@ -100,3 +100,16 @@ def updateRedditComments(id):
                 extra = comment.extra,
             )
         Comment.objects.update_or_create(reddit_id=d['reddit_id'], defaults=d)
+
+
+@shared_task
+def updateSomeComments():
+    query = """
+SELECT main_post.id 
+FROM main_post LEFT JOIN main_comment ON main_post.id = post_id_id 
+WHERE post_id_id is NULL 
+ORDER BY main_post.created desc 
+LIMIT 5"""
+    ids = [post.id for post in Post.objects.raw(query)]
+    for id in ids:
+        updateRedditComments(id)

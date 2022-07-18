@@ -18,10 +18,8 @@ app.conf.update(
     result_extended=True,
     task_track_started=True,
     beat_schedule={
-        'updateAllListing': {
-            'task': 'main.tasks.updateAllListing',
-            'schedule': 60*5,    
-        },
+        'updateAllListing': {'task': 'main.tasks.updateAllListing','schedule': 60*5,},
+        'updateSomeComments': {'task': 'main.tasks.updateSomeComments','schedule': 60,},
     },
 )
 
