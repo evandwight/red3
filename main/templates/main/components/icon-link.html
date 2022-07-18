@@ -2,8 +2,8 @@
 
 {% if link %}
 <a href="{{link}}">
-    <img src="{% static 'main/images/'|add:svg|add:'.svg'%}" class="w-4" />
+    <img src="{% static 'main/images/'|add:svg|add:'.svg'%}" class="w-6" />
 </a>
 {% else %}
-<img src="{% static 'main/images/'|add:svg|add:'-gray.svg'%}" class="w-4" />
+<img src="{% static 'main/images/'|add:svg|add:'-gray.svg'%}" class="w-6" />
 {% endif %}

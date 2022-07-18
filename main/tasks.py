@@ -27,7 +27,6 @@ def updateAllListing():
     sfwPosts = list(reddit.subreddit("all").hot(limit=100))
     nsfwPosts = list(reddit.subreddit(nsfwSubreddits).hot(limit=100))
     all = sfwPosts + nsfwPosts
-    all.sort(key=lambda post: post.score, reverse=True)
     for redditPost in all:
         id = redditPost.id
         if Post.objects.filter(reddit_id=id).exists():
@@ -46,7 +45,8 @@ def updateAllListing():
                 subreddit_name_prefixed=redditPost.subreddit_name_prefixed,
                 user_name=redditPost.author.name,
                 nsfw=redditPost.over_18,
-                text=redditPost.selftext
+                text=redditPost.selftext,
+                thumbnail=redditPost.thumbnail,
                 )
         dbPost.save()
 

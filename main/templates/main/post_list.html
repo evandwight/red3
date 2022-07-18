@@ -13,61 +13,73 @@
 
 {% block content %}
 {% if page_obj %}
-
 <ul role="list" class="divide-y divide-gray-500">
     {% for post in page_obj %}
     <li class="py-1 sm:py-4">
         {% if post.nsfw or post.mean %}
-        <div class="flex flex-row justify-around py-1">
-            {% if post.nsfw %}
-            <div class="text-red-600">nsfw</div>
-            {% endif %}    
-            {% if post.mean %}
-            <div class="text-red-600">mean</div>
-            {% endif %}    
-        </div>
+            <div class="flex flex-row justify-around flex-wrap py-1">
+                {% if post.nsfw %}
+                <div class="text-red-600">nsfw</div>
+                {% endif %}    
+                {% if post.mean %}
+                <div class="text-red-600">mean</div>
+                {% endif %}    
+            </div>
         {% endif %}
-        <div>
-            {%if post.external_link %}
-            <a href="{{post.external_link}}">
-            {%else%}
-            <a href="{{'main:detail'|url2:post.id}}">
-            {%endif%}
-                {{ post.title }}
-            </a>
+        <div class="flex flex-row flex-wrap justify-start py-1">
+            <div class="px-2 grow basis-0 flex justify-center">
+                {% if post.thumbnail %}
+                    <img class="max-w-none h-min" width="70" height="70" src="{{post.thumbnail}}"/>
+                {% else %}
+                    <img class="max-w-none h-min" width="70" height="70" src="{% static 'main/images/text.svg' %}"/>
+                {% endif %}
+            </div>
+            <div class="grow basis-1/2 sm:basis-4/5">
+                {%if post.external_link %}
+                <a href="{{post.external_link}}">
+                {%else%}
+                <a href="{{'main:detail'|url2:post.id}}">
+                {%endif%}
+                    {{ post.title }}
+                </a>
+            </div>
         </div>
-        <div class="flex flex-row justify-around py-1">
-            <div class="text-gray-500 basis-full px-2 text-center">{{post.subreddit_name_prefixed|default:"mm"}}</div>
-            <div class="text-gray-500 basis-full px-2 text-center">{{post.user_name|default:"anon"}}</div>
-            <div class="text-gray-500 basis-full px-2 text-center">{{post.created|timeSinceShort}}</div>
+        <div class="flex flex-row flex-wrap justify-around py-1 text-gray-500 text-center">
+            <div>{{post.subreddit_name_prefixed|default:"mm"}}</div>
+            <div>{{post.user_name|default:"anon"}}</div>
+            <div>{{post.created|timeSinceShort}}</div>
         </div>
-        <div class="flex flex-row justify-around py-1">
-            <div>{% include "main/components/vote-up-icon.html" with id=post.thing_uuid vote=post.vote only %}</div>
-            <div>{% include "main/components/vote-down-icon.html" with id=post.thing_uuid vote=post.vote only %}</div>
-            <div>{% include "main/components/icon-link.html" with link=post.external_link svg="link" only %}</div>
-            <div>{% include "main/components/icon-link.html" with link=post.reddit_link svg="reddit-line"  only %}</div>
-            <div>{% include "main/components/icon-link.html" with link="main:detail"|url2:post.id svg="discuss-line"  only %}</div>
+        <div class="sm:flex sm:flex-row sm:justify-end">
+            <div class="flex flex-row justify-around py-1 sm:w-1/2 lg:w-1/3">
+                <div>{% include "main/components/vote-up-icon.html" with id=post.thing_uuid vote=post.vote only %}</div>
+                <div>{% include "main/components/vote-down-icon.html" with id=post.thing_uuid vote=post.vote only %}</div>
+                <div>{% include "main/components/icon-link.html" with link=post.external_link svg="link" only %}</div>
+                <div>{% include "main/components/icon-link.html" with link=post.reddit_link svg="reddit-line"  only %}</div>
+                <div>{% include "main/components/icon-link.html" with link="main:detail"|url2:post.id svg="discuss-line"  only %}</div>
+            </div>
         </div>
     </li>
     {% endfor %}
 </ul>
 <hr class="border-gray-500">
 <div class="pagination">
-    <span class="step-links">
+    <div class="flex flex-row items-center justify-center">
         {% if page_obj.has_previous %}
-        <a href="?page=1">&laquo; first</a>
-        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        <a href="?page={{page_obj.previous_page_number}}">
+            <img src="{% static 'main/images/arrow-left-line.svg'%}" class="w-6" />
+        </a>
         {% endif %}
 
-        <span class="current">
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-        </span>
+        <div>
+            page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </div>
 
         {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}">next</a>
-        <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        <a href="?page={{page_obj.next_page_number}}">
+            <img src="{% static 'main/images/arrow-right-line.svg'%}" class="w-6" />
+        </a>
         {% endif %}
-    </span>
+    </div>
 </div>
 {% else %}
 <p>No posts are available.</p>

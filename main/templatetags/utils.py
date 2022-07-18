@@ -16,17 +16,17 @@ def commentIcons(postId, commentId, thing_uuid, vote):
     html = """
 <div>
     <a href="{}" class="onclick-vote">
-        <img src="/static/main/images/arrow-up-line{}.svg" class="w-4" id="vote-up-{}"/>
+        <img src="/static/main/images/arrow-up-line{}.svg" class="w-6" id="vote-up-{}"/>
     </a>
 </div>
 <div>
     <a href="{}" class="onclick-vote">
-        <img src="/static/main/images/arrow-down-line{}.svg" class="w-4" id="vote-dn-{}"/>
+        <img src="/static/main/images/arrow-down-line{}.svg" class="w-6" id="vote-dn-{}"/>
     </a>
 </div>
 <div>
     <a href="{}">
-        <img src="/static/main/images/reply-line.svg" class="w-4" />
+        <img src="/static/main/images/reply-line.svg" class="w-6" />
     </a>
 </div>
 """

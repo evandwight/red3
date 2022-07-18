@@ -24,6 +24,7 @@ class Post(models.Model):
     upvote_ratio = models.FloatField(default=1)
     reddit_link = models.TextField(null=True)
     external_link = models.TextField(null=True)
+    thumbnail = models.TextField(null=True)
     text = models.TextField(null=True, blank=True)
     subreddit_name_prefixed = models.TextField(null=True)
     user_name = models.TextField(null=True)
