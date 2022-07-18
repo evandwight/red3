@@ -24,11 +24,7 @@
             {% endif %}
         </div>
         <div class="grow basis-1/2 sm:basis-4/5">
-            {%if post.external_link %}
-            <a href="{{post.external_link}}">
-            {%else%}
             <a href="{{'main:detail'|url2:post.id}}">
-            {%endif%}
                 {{ post.title }}
             </a>
         </div>
