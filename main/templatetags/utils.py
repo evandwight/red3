@@ -2,7 +2,7 @@ from django import template
 from datetime import datetime, timezone
 from django.urls import reverse
 from django.utils.html import format_html
-from django.core.validators import URLValidator
+from urllib.parse import urlparse
 import re
 
 register = template.Library()
@@ -74,7 +74,15 @@ def url2(a,b):
 
 @register.filter
 def isUrl(text):
-    return text and URLValidator().regex.match(text) is not None
+    scheme = urlparse(text).scheme
+    return scheme == "http" or scheme == "https"
+
+@register.filter
+def netloc(text):
+    if not text:
+        return 'self'
+    else:
+        return urlparse(text).netloc
 
 @register.filter
 def isLoadable(url):

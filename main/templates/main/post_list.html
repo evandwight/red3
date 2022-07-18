@@ -40,10 +40,11 @@
                 </a>
             </div>
         </div>
-        <div class="flex flex-row flex-wrap justify-around py-1 text-gray-500 text-center">
+        <div class="flex flex-row flex-wrap justify-around py-1 text-gray-500 text-center gap-x-1">
             <div>{{post.subreddit_name_prefixed|default:"mm"}}</div>
             <div>{{post.user_name|default:"anon"}}</div>
             <div>{{post.created|timeSinceShort}}</div>
+            <div>{{post.external_link|netloc}}</div>
         </div>
         <div class="sm:flex sm:flex-row sm:justify-end">
             <div class="flex flex-row justify-around py-1 sm:w-1/2 lg:w-1/3">
