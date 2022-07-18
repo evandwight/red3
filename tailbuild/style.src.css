@@ -29,3 +29,8 @@
 .w-6 {
     width: 1.5rem;
 }
+
+.custom-word-breaks {
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
