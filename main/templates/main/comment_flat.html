@@ -47,7 +47,7 @@
         </div>
         <div class="sm:flex sm:flex-row sm:justify-end">
             <div class="flex flex-row justify-around py-1 sm:w-1/2 lg:w-1/3 text-fuchsia-500">
-                <a class="maybe-expand" {%if node.parent_id_id%}href="#comment-{{node.parent_id_id}}"{%endif%}>prev parent</a>
+                <a class="maybe-expand" {%if node.parent_id%}href="#comment-{{node.parent_id}}"{%endif%}>prev parent</a>
                 <a class="maybe-expand" {%if node.next_parent_id%}href="#comment-{{node.next_parent_id}}"{%endif%}>next parent</a>
                 <a class="maybe-expand" {%if node.prev_id%}href="#comment-{{node.prev_id}}"{%endif%}>prev</a>
                 <a class="maybe-expand" {%if node.next_id%}href="#comment-{{node.next_id}}"{%endif%}>next</a>
