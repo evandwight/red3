@@ -45,7 +45,8 @@ def applyVotes(things, userId):
         obj.vote = votes.get(obj.thing_uuid)
 
 def loadRedditComments(request, pk):
-    if Post.objects.get(pk).is_local:
+    post = Post.objects.filter(id=pk).first()
+    if not post or post.is_local:
         return HttpResponseNotFound()
         
     limitResponse = rateLimit('loadRedditCommentsCount', 30)
