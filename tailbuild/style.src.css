@@ -34,3 +34,15 @@
     overflow-wrap: break-word;
     word-break: break-word;
 }
+
+textarea {
+    color: #000000;
+}
+
+input {
+    color: #000000;
+}
+
+a:not([href]) {
+    color: #6B7280;
+}

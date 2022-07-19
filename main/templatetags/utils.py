@@ -36,7 +36,7 @@ def commentIcons(postId, commentId, thing_uuid, vote):
         upvoteHref, upActive, thing_uuid,
         downvoteHref, downActive, thing_uuid,
         submitHref
-    )        
+    )
 
 @register.filter
 def get_type(value):

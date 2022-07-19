@@ -97,6 +97,14 @@ function expand(event) {
     expandElement.hidden = !expandElement.hidden
 }
 
+function collapse(event) {
+    event.preventDefault();
+    var element = event.currentTarget;
+    var expandElement = document.getElementById(element.getAttribute("href").slice(1));
+    expandElement.hidden = false;
+    element.parentElement.parentElement.remove()
+}
+
 
 // Attach listeners
 document.addEventListener('DOMContentLoaded', function () {
@@ -106,5 +114,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     Array.from(document.getElementsByClassName('onclick-expand')).forEach(element => {
         element.addEventListener('click', expand);
+    });
+
+    Array.from(document.getElementsByClassName('onclick-collapse')).forEach(element => {
+        element.addEventListener('click', collapse);
     });
 });
