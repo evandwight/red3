@@ -6,6 +6,7 @@ import logging
 from main.models import Post, Comment
 import os
 from django.db.models import Q, F
+from main.views.utils import ALL_LISTING_ORDER_BY
                 
 
 logger = logging.getLogger(__name__)
@@ -107,11 +108,12 @@ def updateRedditComments(id):
 @shared_task
 def updateSomeComments():
     hoursAgo = lambda hours: datetime.now(tz=timezone.utc) - timedelta(hours=hours)
+    topIds = Post.objects.order_by(ALL_LISTING_ORDER_BY).values_list('id', flat=True)[:25]
     ids = Post.objects.filter((Q(comment_update_time__isnull=True) 
         | Q(comment_update_time__lt=hoursAgo(4)))
         & Q(created__gt=hoursAgo(12))
-        & Q(reddit_score__gt=10000)) \
+        & Q(id__in=topIds)) \
         .order_by(F('comment_update_time').asc(nulls_last=False)) \
-        .values_list('id', flat=True)[:5]
+        .values_list('id', flat=True)[:1]
     for id in ids:
         updateRedditComments(id)

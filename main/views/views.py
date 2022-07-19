@@ -12,7 +12,7 @@ from django.core.paginator import Paginator
 from ..forms import ProfileForm
 from ..utils import rateLimit, rateLimitByIp, conditional_cache
 from django.views.decorators.cache import cache_page
-
+from .utils import ALL_LISTING_ORDER_BY
 
 @conditional_cache(decorator=cache_page(60))
 def listing(request):
@@ -22,10 +22,7 @@ def listing(request):
         querySet = querySet.exclude(nsfw=True)
     if not profile.show_mean:
         querySet = querySet.exclude(mean=True)
-    timeComponent = (Extract(F("created"), 'epoch') - 1134028003)/45000
-    scoreComponent = Log(10, Greatest(
-        Abs(F("reddit_score") + F("score"))*2, 1))*Sign(F("reddit_score") + F("score"))
-    querySet = querySet.order_by((timeComponent + scoreComponent).desc())
+    querySet = querySet.order_by(ALL_LISTING_ORDER_BY)
     paginator = Paginator(querySet, 25)  # Show 25 contacts per page.
 
     page_number = request.GET.get('page')
