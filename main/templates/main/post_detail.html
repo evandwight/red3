@@ -15,6 +15,11 @@
         {% endif %}
     </div>
     {% endif %}
+    {%if post.external_link|isImageUrl%}
+    <div class="w-full border-dashed border-fuchsia-600 border-2 text-center">
+        <img src="{{post.external_link}}" style="max-width: 75%; max-height: 100vh; margin-left: auto; margin-right: auto;"/>
+    </div>
+    {%endif%}
     <div class="flex flex-row flex-wrap justify-start py-1">
         <div class="px-2 grow basis-0 flex justify-center">
             {% if post.thumbnail|isUrl %}
@@ -45,13 +50,6 @@
             <div id="external-link-{{post.id}}">{% include "main/components/icon-link.html" with link=post.external_link svg="link" title="external link" only %}</div>
             <div id="reddit-link-{{post.id}}">{% include "main/components/icon-link.html" with link=post.reddit_link svg="reddit-line" title="reddit link"  only %}</div>
             <div>{% include "main/components/icon-link.html" with link="main:detail"|url2:post.id svg="discuss-line" title="view comments" only %}</div>
-            <div>
-            {% if post.text or post.external_link|isLoadable%}
-            <img title="load content" src="{% static 'main/images/aspect-ratio-line.svg'%}" class="w-6 onclick-expand auto-expand" data-post-id="{{post.id}}" width=24 height=24 />
-            {% else %}
-            <img src="{% static 'main/images/aspect-ratio-line-gray.svg'%}" class="w-6" width=24 height=24  />
-            {% endif %}
-            </div>
             {% url "main:submitComment" post.id as submitCommentUrl %}
             <div>{% include "main/components/icon-link.html" with link=submitCommentUrl svg="reply-line" title="submit comment" only %}</div>
             {% if not post.is_local %}
@@ -65,13 +63,6 @@
             </div>
             {% endif %}
         </div>
-    </div>
-    <div class="w-full border-dashed border-fuchsia-600 border-2 text-center" id="expand-{{post.id}}" hidden>
-        {%if post.external_link|isImageUrl%}
-        <img src="{{post.external_link}}" loading="lazy" style="max-width: 75%; max-height: 100vh; margin-left: auto; margin-right: auto;"/>
-        {%else%}
-        No content
-        {%endif%}
     </div>
 </div>
 <hr class="border-gray-500">

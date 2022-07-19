@@ -53,26 +53,7 @@
                 <div id="external-link-{{post.id}}">{% include "main/components/icon-link.html" with link=post.external_link svg="link" title="external link" only %}</div>
                 <div id="reddit-link-{{post.id}}">{% include "main/components/icon-link.html" with link=post.reddit_link svg="reddit-line" title="reddit link"  only %}</div>
                 <div>{% include "main/components/icon-link.html" with link="main:detail"|url2:post.id svg="discuss-line" title="view comments" only %}</div>
-                <div>
-                {% if post.text or post.external_link|isLoadable%}
-                <img title="load content" src="{% static 'main/images/aspect-ratio-line.svg'%}" class="w-6 onclick-expand" data-post-id="{{post.id}}" width=24 height=24 />
-                {% else %}
-                <img src="{% static 'main/images/aspect-ratio-line-gray.svg'%}" class="w-6" width=24 height=24 />
-                {% endif %}
-                </div>
             </div>
-        </div>
-
-        <div class="w-full border-dashed border-fuchsia-600 border-2 text-center" id="expand-{{post.id}}" hidden>
-            {% if post.text %}
-            <div class="w-3/4 mx-auto text-left">
-                {% include "main/components/unsafe_text.html" with nodes=post.text|textToHtmlNodes only %}
-            </div>
-            {%elif post.external_link|isImageUrl%}
-            <img src="{{post.external_link}}" loading="lazy" style="max-width: 75%; max-height: 100vh; margin-left: auto; margin-right: auto;"/>
-            {%else%}
-            No content
-            {%endif%}
         </div>
     </li>
     {% endfor %}

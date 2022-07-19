@@ -34,6 +34,7 @@ class Post(models.Model):
     override_mean = models.BooleanField(default=False)
     thing_uuid = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True)
+    comment_update_time = models.DateTimeField(null=True)
 
     def __str__(self):
         return self.title

@@ -1,10 +1,11 @@
 from celery import shared_task
 import praw
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from psaw import PushshiftAPI
 import logging
-from .models import Post, Comment
+from main.models import Post, Comment
 import os
+from django.db.models import Q, F
                 
 
 logger = logging.getLogger(__name__)
@@ -40,7 +41,7 @@ def updateAllListing():
                 reddit_link="https://reddit.com" + redditPost.permalink,
                 external_link=redditPost.url,
                 subreddit_name_prefixed=redditPost.subreddit_name_prefixed,
-                user_name=redditPost.author.name,
+                user_name=(redditPost.author and redditPost.author.name) or "reddit-anon",
                 nsfw=redditPost.over_18,
                 text=redditPost.selftext,
                 thumbnail=redditPost.thumbnail,
@@ -99,16 +100,18 @@ def updateRedditComments(id):
                 extra = comment.extra,
             )
         Comment.objects.update_or_create(reddit_id=d['reddit_id'], defaults=d)
+    post.comment_update_time = datetime.now(tz=timezone.utc)
+    post.save(update_fields=["comment_update_time"])
 
 
 @shared_task
 def updateSomeComments():
-    query = """
-SELECT main_post.id 
-FROM main_post LEFT JOIN main_comment ON main_post.id = post_id_id 
-WHERE post_id_id is NULL and main_post.is_local = False
-ORDER BY main_post.created desc 
-LIMIT 5"""
-    ids = [post.id for post in Post.objects.raw(query)]
+    hoursAgo = lambda hours: datetime.now(tz=timezone.utc) - timedelta(hours=hours)
+    ids = Post.objects.filter((Q(comment_update_time__isnull=True) 
+        | Q(comment_update_time__lt=hoursAgo(4)))
+        & Q(created__gt=hoursAgo(12))
+        & Q(reddit_score__gt=10000)) \
+        .order_by(F('comment_update_time').asc(nulls_last=False)) \
+        .values_list('id', flat=True)[:5]
     for id in ids:
         updateRedditComments(id)
