@@ -41,6 +41,8 @@ class CommentTree:
         heap = []
         [pushnode(heap, node) for node in self.root]
         for i in range(1, maxShown):
+            if len(heap) == 0:
+                break
             node = heappop(heap)[1]
             if node.score < 1:
                 break

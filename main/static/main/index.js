@@ -56,7 +56,8 @@ function getIconHref(divElementId) {
     }
 }
 
-function tryToLoadVideo(expandElement, redditUrl) {
+function tryToLoadVideo(expandElement) {
+    var redditUrl = expandElement.getAttribute('data-reddit-url');
     expandElement.innerText = "Loading";
     // https://reddit.com does not allow cors
     if (redditUrl.startsWith('https://reddit.com')) {
@@ -67,7 +68,7 @@ function tryToLoadVideo(expandElement, redditUrl) {
     }).then(function (json) {
         var videoSrc = json[0].data.children[0].data.secure_media.reddit_video.fallback_url;
         var video = document.createElement('video');
-        video.style = "width: 75%; max-height: 100vh; margin-left: auto; margin-right: auto;";
+        video.style = "width: 100%; max-height: 100vh; margin-left: auto; margin-right: auto;";
         video.controls = true;
         video.loop = true;
         video.autoplay = true;
@@ -81,20 +82,7 @@ function tryToLoadVideo(expandElement, redditUrl) {
     }).catch(function(error) {
         expandElement.innerText = "Cannot load video";
     });
-}
-
-function expand(event) {
-    event.preventDefault();
-    var element = event.currentTarget;
-    var postId = element.getAttribute("data-post-id");
-    var url = getIconHref(`external-link-${postId}`);
-    var redditUrl = getIconHref(`reddit-link-${postId}`);
-    var expandElement = document.getElementById(`expand-${postId}`)
-    if (expandElement.children.length == 0 && url.startsWith("https://v.redd.it/")) {
-        tryToLoadVideo(expandElement, redditUrl);
-    }
-
-    expandElement.hidden = !expandElement.hidden
+    expandElement.hidden = false;
 }
 
 function collapse(event) {
@@ -123,8 +111,8 @@ document.addEventListener('DOMContentLoaded', function () {
         element.addEventListener('click', vote);
     });
 
-    Array.from(document.getElementsByClassName('onclick-expand')).forEach(element => {
-        element.addEventListener('click', expand);
+    Array.from(document.getElementsByClassName('try-load-video')).forEach(element => {
+        tryToLoadVideo(element);
     });
 
     Array.from(document.getElementsByClassName('onclick-collapse')).forEach(element => {

@@ -29,7 +29,9 @@
         <div class="flex flex-row flex-wrap justify-start py-1">
             <div class="px-2 grow basis-0 flex justify-center">
                 {% if post.thumbnail|isUrl %}
-                    <img class="max-w-none h-min" width="70" height="70" src="{{post.thumbnail}}"/>
+                    <a href="{{post.external_link}}">
+                        <img class="max-w-none h-min" width="70" height="70" src="{{post.thumbnail}}"/>
+                    </a>
                 {% else %}
                     <img class="max-w-none h-min" width="70" height="70" src="{% static 'main/images/text.svg' %}"/>
                 {% endif %}

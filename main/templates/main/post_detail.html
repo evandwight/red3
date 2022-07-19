@@ -17,13 +17,17 @@
     {% endif %}
     {%if post.external_link|isImageUrl%}
     <div class="w-full border-dashed border-fuchsia-600 border-2 text-center">
-        <img src="{{post.external_link}}" style="max-width: 75%; max-height: 100vh; margin-left: auto; margin-right: auto;"/>
+        <img class="max-w-full max-h-screen mx-auto"src="{{post.external_link}}"/>
     </div>
+    {%elif post.external_link|isVideoUrl%}
+        <div class="w-full border-dashed border-fuchsia-600 border-2 text-center try-load-video" data-reddit-url="{{post.reddit_link}}" hidden></div>
     {%endif%}
     <div class="flex flex-row flex-wrap justify-start py-1">
         <div class="px-2 grow basis-0 flex justify-center">
             {% if post.thumbnail|isUrl %}
-                <img class="max-w-none h-min" width="70" height="70" src="{{post.thumbnail}}"/>
+                <a href="{{post.external_link}}">
+                    <img class="max-w-none h-min" width="70" height="70" src="{{post.thumbnail}}"/>
+                </a>
             {% else %}
                 <img class="max-w-none h-min" width="70" height="70" src="{% static 'main/images/text.svg' %}"/>
             {% endif %}
