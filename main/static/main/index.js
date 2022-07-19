@@ -100,9 +100,20 @@ function expand(event) {
 function collapse(event) {
     event.preventDefault();
     var element = event.currentTarget;
-    var expandElement = document.getElementById(element.getAttribute("href").slice(1));
+    var id = element.getAttribute("href").slice(1)
+    var expandElement = document.getElementById(id);
     expandElement.hidden = false;
-    element.parentElement.parentElement.remove()
+    document.getElementById(`${id}-controller`).remove()
+}
+
+
+function maybeExpand(event) {
+    var element = event.currentTarget;
+    var expandElement = document.getElementById(element.getAttribute("href").slice(1));
+    if (expandElement.offsetParent === null) {
+        expandElement.parentElement.hidden = false;
+        document.getElementById(`${expandElement.parentElement.id}-controller`).remove()
+    }
 }
 
 
@@ -118,5 +129,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     Array.from(document.getElementsByClassName('onclick-collapse')).forEach(element => {
         element.addEventListener('click', collapse);
+    });
+
+    Array.from(document.getElementsByClassName('maybe-expand')).forEach(element => {
+        element.addEventListener('click', maybeExpand);
     });
 });

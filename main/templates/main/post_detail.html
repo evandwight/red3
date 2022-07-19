@@ -75,9 +75,9 @@
     </div>
 </div>
 <hr class="border-gray-500">
-{% if comments %}
+{% if flatComments %}
 <div>
-    {% include "main/comment_flat.html" with post=post comments=flatComments only %}
+    {% include "main/comment_flat.html" with post=post nodes=flatComments only %}
 </div>
 {% else %}
 <div>No comments</div>
