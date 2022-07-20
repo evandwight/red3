@@ -53,7 +53,9 @@ def getComments(submissionId):
     comments = reddit.submission(submissionId).comments
     comments.replace_more(limit=0)
     comments = comments.list()
-    for comment in comments:
+    for i, comment in enumerate(comments):
+        if comment.score_hidden:
+            comment.score = len(comments) - i
         comment.removedFromReddit = False
     redditRemovedComments = [x for x in comments if x.body == '[removed]' and x.author is None]
     if len(redditRemovedComments) > 500:
