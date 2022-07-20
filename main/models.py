@@ -91,16 +91,3 @@ class Vote(models.Model):
                 fields=['user', 'thing_uuid'], name="unique_user_thing_combination"
             )
         ]
-
-admin.site.register(User)
-admin.site.register(Profile)
-
-@admin.register(Post)
-class PostAdmin(admin.ModelAdmin):
-    list_filter = ('is_local', "override_mean")
-
-@admin.register(Comment)
-class CommentAdmin(admin.ModelAdmin):
-    list_filter = ('is_local', "override_mean")
-
-admin.site.register(Vote)

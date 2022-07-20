@@ -96,12 +96,14 @@ function collapse(event) {
 
 
 function maybeExpand(event) {
+    event.preventDefault()
     var element = event.currentTarget;
     var expandElement = document.getElementById(element.getAttribute("href").slice(1));
     if (expandElement.offsetParent === null) {
         expandElement.parentElement.hidden = false;
         document.getElementById(`${expandElement.parentElement.id}-controller`).remove()
     }
+    element.scrollIntoView()
 }
 
 
