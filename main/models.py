@@ -37,7 +37,7 @@ class Post(models.Model):
     comment_update_time = models.DateTimeField(null=True)
 
     def __str__(self):
-        return self.title
+        return f'{self.title[:200]} --- by {self.user_name}'
 
 
 class Comment(models.Model):
@@ -63,7 +63,7 @@ class Comment(models.Model):
         default=uuid.uuid4, editable=False, unique=True)
 
     def __str__(self):
-        return self.text
+        return f'{self.text[:200]} --- by {self.user_name}'
 
 
 class Profile(models.Model):

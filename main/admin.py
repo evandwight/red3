@@ -1,8 +1,15 @@
 from django.contrib import admin
 from main.models import Post, User, Profile, Comment, Vote
+
 # Register your models here.
-admin.site.register(User)
 admin.site.register(Profile)
+
+class ProfileInline(admin.StackedInline):
+    model = Profile
+
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    inlines = [ProfileInline,]
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
