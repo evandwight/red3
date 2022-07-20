@@ -103,7 +103,7 @@ function maybeExpand(event) {
         expandElement.parentElement.hidden = false;
         document.getElementById(`${expandElement.parentElement.id}-controller`).remove()
     }
-    element.scrollIntoView()
+    expandElement.scrollIntoView()
 }
 
 
