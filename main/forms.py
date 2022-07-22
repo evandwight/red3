@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 
 class PostForm(forms.Form):
     title = forms.CharField(label='Title' , max_length=2000,\
-        widget=forms.Textarea(attrs={'class': 'w-full h-24 text-black'}))
+        widget=forms.Textarea(attrs={'class': 'w-full h-24 text-black', 'autofocus': True}))
     text = forms.CharField(label='Text' , max_length=5000, required=False,\
         widget=forms.Textarea(attrs={'class': 'w-full h-64 text-black'}))
     link = forms.URLField(label='Link' , max_length=2000, required=False)
@@ -14,7 +14,7 @@ class PostForm(forms.Form):
 
 class CommentForm(forms.Form):
     text = forms.CharField(label='Text' , max_length=5000,\
-        widget=forms.Textarea(attrs={'class': 'w-full h-64 text-black'}))
+        widget=forms.Textarea(attrs={'class': 'w-full h-64 text-black', 'autofocus': True}))
     overrideMeanTag = forms.BooleanField(widget=forms.HiddenInput(), label='Override mean tag', required=False)
     contentHash = forms.CharField(widget=forms.HiddenInput(), required=False)
 
