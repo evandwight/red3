@@ -16,7 +16,7 @@
 <ul role="list" class="divide-y divide-gray-500">
     {% for post in page_obj %}
     <li class="py-1 sm:py-4">
-        {% if post.nsfw or post.mean %}
+        {% if post.nsfw or post.mean or post.reddit_locked %}
             <div class="flex flex-row justify-around flex-wrap py-1">
                 {% if post.nsfw %}
                 <div class="text-red-600">nsfw</div>
@@ -24,6 +24,9 @@
                 {% if post.mean %}
                 <div class="text-red-600">mean</div>
                 {% endif %}    
+                {% if post.reddit_locked %}
+                <div class="text-red-600">reddit_locked</div>
+                {% endif %}
             </div>
         {% endif %}
         <div class="flex flex-row flex-wrap justify-start py-1">

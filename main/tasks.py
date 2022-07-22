@@ -23,7 +23,7 @@ pushshift = PushshiftAPI()
 
 @shared_task
 def updateAllListing():
-    sfwPosts = list(reddit.subreddit("all").hot(limit=100))
+    sfwPosts = list(reddit.subreddit("all").hot(limit=500))
     nsfwPosts = list(reddit.subreddit(nsfwSubreddits).hot(limit=100))
     all = sfwPosts + nsfwPosts
     for redditPost in all:
@@ -32,6 +32,7 @@ def updateAllListing():
             dbPost = Post.objects.get(reddit_id= id)
             dbPost.reddit_score = redditPost.score
             dbPost.upvote_ratio = redditPost.upvote_ratio
+            dbPost.reddit_locked = redditPost.locked
         else:
             dbPost = Post(
                 reddit_id=id, 
@@ -46,6 +47,7 @@ def updateAllListing():
                 nsfw=redditPost.over_18,
                 text=redditPost.selftext,
                 thumbnail=redditPost.thumbnail,
+                reddit_locked = redditPost.locked
                 )
         dbPost.save()
     
@@ -56,26 +58,10 @@ def getComments(submissionId):
     for i, comment in enumerate(comments):
         if comment.score_hidden:
             comment.score = len(comments) - i
-        comment.removedFromReddit = False
-    redditRemovedComments = [x for x in comments if x.body == '[removed]' and x.author is None]
-    if len(redditRemovedComments) > 500:
-        logger.warning('Too many removed comments to load from pushshift')
-    redditRemovedComments = redditRemovedComments[:500]
-    removedCommentIds = [x.id for x in redditRemovedComments]
-    pushshiftRemovedComments = list(pushshift.search_comments(ids=removedCommentIds, limit=500, metadata=True))
-    pushshiftHash = { x.id : x for x in pushshiftRemovedComments }
-    for comment in redditRemovedComments:
-        if comment.id in pushshiftHash:
-            pComment = pushshiftHash[comment.id]
-            comment.body = pComment.body
-            comment.author = pComment.author
-            comment.removedFromReddit = True
-        else:
-            logger.error(f'Pushshift doesnt have the comment {comment.id}')
-    for comment in comments:
-        comment.mean = False
-        comment.extra = {}
     return comments
+
+def isCommentRemoved(comment):
+    return comment.body == '[removed]' and comment.author is None
 
 @shared_task
 def updateRedditComments(id):
@@ -84,10 +70,17 @@ def updateRedditComments(id):
         return
     comments = getComments(post.reddit_id)
     comments.sort(key=lambda comment: comment.depth)
+    removedComments = []
     for comment in comments:
-        parent_id = comment.parent_id
-        parentComment = Comment.objects.get(reddit_id = parent_id[3:]) if parent_id.startswith("t1_") else None
-        d = dict(
+        dbComment = Comment.objects.filter(reddit_id = comment.id).first()
+        if dbComment:
+            dbComment.reddit_score = comment.score
+            dbComment.removed_from_reddit = isCommentRemoved(comment)
+        else:    
+            parent_id = comment.parent_id
+            parentComment = Comment.objects.get(reddit_id = parent_id[3:]) if parent_id.startswith("t1_") else None
+            removedFromReddit = isCommentRemoved(comment)
+            dbComment = Comment(
                 text = comment.body,
                 created = datetime.fromtimestamp(comment.created_utc, tz=timezone.utc),
                 reddit_id = comment.id,
@@ -97,12 +90,28 @@ def updateRedditComments(id):
                 user_name = str(comment.author),
                 post_id = post,
                 parent_id = parentComment,
-                removed_from_reddit = comment.removedFromReddit,
+                removed_from_reddit = removedFromReddit,
                 nsfw = False,
-                mean = comment.mean,
-                extra = comment.extra,
+                mean = False,
+                extra = {},
             )
-        Comment.objects.update_or_create(reddit_id=d['reddit_id'], defaults=d)
+            if removedFromReddit:
+                removedComments.append(comment.id)
+        dbComment.save()
+
+    if len(removedComments) > 0:
+        if len(removedComments) > 100:
+            logger.warning('Too many removed comments to load from pushshift')
+            removedComments = removedComments[:100]    
+        pushshiftRemovedComments = list(pushshift.search_comments(ids=removedComments, limit=100, metadata=True))
+        for psComment in pushshiftRemovedComments:
+            dbComment = Comment.objects.filter(reddit_id = psComment.id).first()
+            if dbComment:
+                dbComment.text = psComment.body
+                dbComment.user_name = psComment.author
+                dbComment.removed_from_reddit = True
+                dbComment.save()
+    
     post.comment_update_time = datetime.now(tz=timezone.utc)
     post.save(update_fields=["comment_update_time"])
 

@@ -30,6 +30,7 @@ class Post(models.Model):
     user_name = models.TextField(null=True)
     nsfw = models.BooleanField(null=True)
     is_local = models.BooleanField(default=False)
+    reddit_locked = models.BooleanField(default=False)
     mean = models.BooleanField(default=False)
     override_mean = models.BooleanField(default=False)
     thing_uuid = models.UUIDField(

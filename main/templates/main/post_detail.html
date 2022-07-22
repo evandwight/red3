@@ -5,13 +5,16 @@
 
 {% block content %}
 <div class="py-1 sm:py-4">
-    {% if post.nsfw or post.mean %}
+    {% if post.nsfw or post.mean or post.reddit_locked %}
     <div class="flex flex-row justify-around flex-wrap py-1">
         {% if post.nsfw %}
         <div class="text-red-600">nsfw</div>
         {% endif %}
         {% if post.mean %}
         <div class="text-red-600">mean</div>
+        {% endif %}
+        {% if post.reddit_locked %}
+        <div class="text-red-600">reddit_locked</div>
         {% endif %}
     </div>
     {% endif %}

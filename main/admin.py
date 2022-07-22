@@ -13,11 +13,11 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_filter = ('is_local', "override_mean")
+    list_filter = ('is_local', "override_mean", "reddit_locked")
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_filter = ('is_local', "override_mean")
+    list_filter = ('is_local', "override_mean", "removed_from_reddit")
     readonly_fields = ('parent_id', 'post_id')
 
 admin.site.register(Vote)
