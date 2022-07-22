@@ -1,11 +1,14 @@
 from django.urls import path
+from django.views.generic import RedirectView
 from .views import views, submit, vote, comment
 
 
 app_name = 'main'
 
 urlpatterns = [
-    path('', views.listing, name='index'),
+    path('', RedirectView.as_view(url='/listing/sort=hot'), name='index'),
+    path('listing/sort=<str:sort>', views.listingNew, name='listingSort'),
+    path('sortListing', views.sortListings, name='sortListing'),
     path('<int:pk>/', comment.postDetails, name='detail'),
     path('loadRedditComments/<int:pk>/', views.loadRedditComments, name='loadRedditComments'),
     path('submitPost/', submit.submitPost, name='submitPost'),

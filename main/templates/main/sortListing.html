@@ -1,0 +1,12 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% load utils %}
+{% block title %}Sort listing{% endblock %}
+
+{% block content %}
+Sorts:
+<ul class="underline">
+    <li><a href="{% url 'main:listingSort' 'new'%}">new</a></li>
+    <li><a href="{% url 'main:listingSort' 'hot'%}">hot</a></li>
+</ul>
+{% endblock %}

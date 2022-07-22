@@ -12,17 +12,17 @@ from django.core.paginator import Paginator
 from ..forms import ProfileForm
 from ..utils import rateLimit, rateLimitByIp, conditional_cache
 from django.views.decorators.cache import cache_page
-from .utils import ALL_LISTING_ORDER_BY
+from .utils import ALL_LISTING_ORDER_BY, NEW
 
 @conditional_cache(decorator=cache_page(60))
-def listing(request):
+def listing(request, sort=ALL_LISTING_ORDER_BY):
     profile = getProfileOrDefault(request)
     querySet = Post.objects.get_queryset()
     if not profile.show_nsfw:
         querySet = querySet.exclude(nsfw=True)
     if not profile.show_mean:
         querySet = querySet.exclude(mean=True)
-    querySet = querySet.order_by(ALL_LISTING_ORDER_BY)
+    querySet = querySet.order_by(sort)
     paginator = Paginator(querySet, 25)  # Show 25 contacts per page.
 
     page_number = request.GET.get('page')
@@ -32,6 +32,18 @@ def listing(request):
         applyVotes(page_obj, request.user.id)
 
     return render(request, 'main/post_list.html', {'page_obj': page_obj})
+
+@conditional_cache(decorator=cache_page(60))
+def listingNew(request, sort):
+    sortMap = {'new': NEW, 'hot': ALL_LISTING_ORDER_BY}
+    sortVal = sortMap.get(sort)
+    if sortVal:
+        return listing(request, sortVal)
+    else:
+        HttpResponseNotFound()
+
+def sortListings(request):
+    return render(request, 'main/sortListing.html')
 
 
 def applyVotes(things, userId):

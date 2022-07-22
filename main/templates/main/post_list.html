@@ -5,8 +5,13 @@
 
 {% block header %}
 <div>
-    <a href="{% url 'main:submitPost' %}">
+    <a href="{% url 'main:submitPost' %}" title="submit post">
         <img src="{% static 'main/images/add-line.svg' %}" />
+    </a>
+</div>
+<div>
+    <a href="{% url 'main:sortListing' %}" title="sort listing">
+        <img src="{% static 'main/images/sort-desc.svg' %}" />
     </a>
 </div>
 {% endblock %}
