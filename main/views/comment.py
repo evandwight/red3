@@ -44,7 +44,7 @@ class CommentTree:
             if len(heap) == 0:
                 break
             node = heappop(heap)[1]
-            if node.score < 1:
+            if node.score < 0:
                 break
             node.collapsed = False
             [pushnode(heap, node) for node in node.children]
