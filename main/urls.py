@@ -18,4 +18,5 @@ urlpatterns = [
     path('viewTask/<str:pk>/', views.viewTask, name='viewTask'),
     path('upvote/<str:pk>/', vote.upvote, name='upvote'),
     path('downvote/<str:pk>/', vote.downvote, name='downvote'),
+    path('search', views.search, name='search'),
 ]

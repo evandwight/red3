@@ -3,16 +3,14 @@ from django.urls import reverse
 
 from ..models import Post, Profile, Vote
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
-from django.contrib.auth.models import User
 from ..tasks import updateRedditComments
 from celery.result import AsyncResult
-from django.db.models import F
-from django.db.models.functions import Extract, Log, Greatest, Abs, Sign
 from django.core.paginator import Paginator
-from ..forms import ProfileForm
+from ..forms import ProfileForm, SearchForm
 from ..utils import rateLimit, rateLimitByIp, conditional_cache
 from django.views.decorators.cache import cache_page
 from .utils import ALL_LISTING_ORDER_BY, NEW
+import re
 
 @conditional_cache(decorator=cache_page(60))
 def listing(request, sort=ALL_LISTING_ORDER_BY):
@@ -44,6 +42,26 @@ def listingNew(request, sort):
 
 def sortListings(request):
     return render(request, 'main/sortListing.html')
+
+def search(request):
+    if not request.method == 'POST':
+        form =  SearchForm()
+    else:
+        form = SearchForm(request.POST)
+        if form.is_valid():
+            searchTerm = form.cleaned_data['searchTerm']
+            match = re.match(r'^https?:\/\/.+\/r\/.+\/comments\/(.+)\/.+$', searchTerm) 
+            if match:
+                redditId = match.group(1)
+            else:
+                redditId = searchTerm
+
+            post = Post.objects.filter(reddit_id = redditId).first()
+            if post:
+                return HttpResponseRedirect(reverse('main:detail', kwargs={'pk':post.id}))
+            else:
+                form.add_error(None,f"Not found - reddit id = '{redditId}'")
+    return render(request, 'main/search.html', {'form': form})
 
 
 def applyVotes(things, userId):

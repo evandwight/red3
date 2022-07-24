@@ -18,6 +18,9 @@ class CommentForm(forms.Form):
     overrideMeanTag = forms.BooleanField(widget=forms.HiddenInput(), label='Override mean tag', required=False)
     contentHash = forms.CharField(widget=forms.HiddenInput(), required=False)
 
+class SearchForm(forms.Form):
+    searchTerm = forms.CharField(label='Search for reddit id or url' , max_length=5000)
+
 class ProfileForm(ModelForm):
     class Meta:
         model = Profile

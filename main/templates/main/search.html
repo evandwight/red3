@@ -1,0 +1,15 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% load utils %}
+{% block title %}Search{% endblock %}
+
+{% block content %}
+<form action="{% url 'main:search' %}" method="post">
+    {% csrf_token %}
+    <ul>
+        {{ form.as_ul }}
+    </ul>
+    <input id="submit" class="bg-fuchsia-600 hover:bg-fuchsia-800 text-white font-bold py-2 px-4 rounded" 
+        type="submit" value="Submit">
+</form>
+{% endblock %}
