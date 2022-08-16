@@ -16,7 +16,7 @@ class User(AbstractUser):
 
 class Post(models.Model):
     title = models.TextField()
-    created = models.DateTimeField()
+    created = models.DateTimeField(db_index=True,)
     reddit_id = models.CharField(
         max_length=64, unique=True, null=True, blank=True)
     score = models.IntegerField(default=0)

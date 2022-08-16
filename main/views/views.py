@@ -12,12 +12,14 @@ from django.views.decorators.cache import cache_page
 from .utils import ALL_LISTING_ORDER_BY, NEW
 import re
 from django.views.decorators.http import require_http_methods
+from datetime import datetime, timedelta, timezone
 
 @conditional_cache(decorator=cache_page(60))
 @require_http_methods(["GET"])
 def listing(request, sort=ALL_LISTING_ORDER_BY):
     profile = getProfileOrDefault(request)
     querySet = Post.objects.get_queryset()
+    querySet = querySet.filter(created__gte=(datetime.now(tz=timezone.utc) - timedelta(days=2)))
     if not profile.show_nsfw:
         querySet = querySet.exclude(nsfw=True)
     if not profile.show_mean:
