@@ -6,6 +6,7 @@ from django.http import HttpResponseNotFound, JsonResponse
 from django.shortcuts import render
 from ..utils import conditional_cache
 from django.views.decorators.cache import cache_page
+from django.views.decorators.http import require_http_methods
 
 class CommentTree:
     def __init__(self, comments):
@@ -97,6 +98,7 @@ def applyProfile(comments, profile):
             comment.hidden_reason = '[hiding mean]'
 
 # @conditional_cache(decorator=cache_page(60))
+@require_http_methods(["GET"])
 def postDetails(request, pk):
     post = Post.objects.filter(id=pk).first()
     if not post:

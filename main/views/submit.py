@@ -14,6 +14,7 @@ from django import forms
 import base64
 import requests
 import os
+from django.views.decorators.http import require_http_methods
                 
 def hs_check_comment(comment):
   data = {
@@ -23,6 +24,7 @@ def hs_check_comment(comment):
   response = requests.post("https://api.moderatehatespeech.com/api/v1/toxic/", json=data).json()
   return response['response'] == "Success" and response["class"] == "flag" and float(response["confidence"]) > 0.9
 
+@require_http_methods(["GET", "POST"])
 def submitPost(request):
     renderForm = lambda form: render(request, 'main/submitPost.html', {'form': form})
 
@@ -70,6 +72,7 @@ def submitPost(request):
             dbPost.save()
             return HttpResponseRedirect(reverse('main:detail', kwargs={'pk':dbPost.id}))
 
+@require_http_methods(["GET", "POST"])
 def submitComment(request, postId, commentId=None):
     renderForm = lambda form: render(request, 'main/submitComment.html', {'form': form, 'postId': postId, 'commentId': commentId})
 

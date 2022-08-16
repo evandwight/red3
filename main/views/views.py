@@ -11,8 +11,10 @@ from ..utils import rateLimit, rateLimitByIp, conditional_cache
 from django.views.decorators.cache import cache_page
 from .utils import ALL_LISTING_ORDER_BY, NEW
 import re
+from django.views.decorators.http import require_http_methods
 
 @conditional_cache(decorator=cache_page(60))
+@require_http_methods(["GET"])
 def listing(request, sort=ALL_LISTING_ORDER_BY):
     profile = getProfileOrDefault(request)
     querySet = Post.objects.get_queryset()
@@ -32,6 +34,7 @@ def listing(request, sort=ALL_LISTING_ORDER_BY):
     return render(request, 'main/post_list.html', {'page_obj': page_obj})
 
 @conditional_cache(decorator=cache_page(60))
+@require_http_methods(["GET"])
 def listingNew(request, sort):
     sortMap = {'new': NEW, 'hot': ALL_LISTING_ORDER_BY}
     sortVal = sortMap.get(sort)
@@ -40,9 +43,11 @@ def listingNew(request, sort):
     else:
         HttpResponseNotFound()
 
+@require_http_methods(["GET"])
 def sortListings(request):
     return render(request, 'main/sortListing.html')
 
+@require_http_methods(["GET", "POST"])
 def search(request):
     if not request.method == 'POST':
         form =  SearchForm()
@@ -71,6 +76,7 @@ def applyVotes(things, userId):
     for obj in things:
         obj.vote = votes.get(obj.thing_uuid)
 
+@require_http_methods(["POST"])
 def loadRedditComments(request, pk):
     post = Post.objects.filter(id=pk).first()
     if not post or post.is_local:
@@ -98,7 +104,7 @@ def getProfileOrDefault(request):
     else:
         return Profile()
 
-
+@require_http_methods(["GET", "POST"])
 def editProfile(request):
     if request.method == 'POST':
         form = ProfileForm(request.POST, instance=getProfile(request.user))
@@ -111,6 +117,7 @@ def editProfile(request):
     return render(request, 'main/profile.html', {'form': form})
 
 
+@require_http_methods(["GET"])
 def viewTask(request, pk):
     res = AsyncResult(pk)
     result = None

@@ -1,11 +1,13 @@
 from django.urls import path
 from django.views.generic import RedirectView
+from django.views.generic.base import TemplateView
 from .views import views, submit, vote, comment
 
 
 app_name = 'main'
 
 urlpatterns = [
+    path('robots.txt', TemplateView.as_view(template_name="main/robots.txt", content_type="text/plain")),
     path('', RedirectView.as_view(url='/listing/sort=hot'), name='index'),
     path('listing/sort=<str:sort>', views.listingNew, name='listingSort'),
     path('sortListing', views.sortListings, name='sortListing'),

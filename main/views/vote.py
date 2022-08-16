@@ -3,6 +3,7 @@ from django.db.models import F
 from django.http import (HttpResponseNotAllowed,
                          HttpResponseNotFound,
                          JsonResponse)
+from django.views.decorators.http import require_http_methods
 
 from ..models import Comment, Post, Vote
 
@@ -56,9 +57,10 @@ def vote(request, pk, direction):
     return JsonResponse({'direction': newDirection, 'reload': hasattr(request.user, 'isNewUser')})
 
 
+@require_http_methods(["POST"])
 def upvote(request, pk):
     return vote(request, pk, Vote.Direction.UP)
 
-
+@require_http_methods(["POST"])
 def downvote(request, pk):
     return vote(request, pk, Vote.Direction.DOWN)

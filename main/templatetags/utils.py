@@ -10,8 +10,8 @@ register = template.Library()
 
 @register.simple_tag
 def commentIcons(postId, commentId, thing_uuid, vote):
-    upvoteHref = f"/upvote/{thing_uuid}"
-    downvoteHref = f"/downvote/{thing_uuid}"
+    upvoteHref = f"/upvote/{thing_uuid}/"
+    downvoteHref = f"/downvote/{thing_uuid}/"
     submitHref = f"/submitComment/{postId}/{commentId}"
     upActive = "-active" if vote == "UP" else ""
     downActive = "-active" if vote == "DN" else ""
