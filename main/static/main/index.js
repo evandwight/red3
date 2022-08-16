@@ -12,6 +12,10 @@ function vote(event) {
         return `/static/main/images/arrow-${isUp ? "up" : "down"}-line${isActive ? "-active" : ""}.svg`
     }
 
+    function imageSrcError(isUp) {
+        return `/static/main/images/arrow-${isUp ? "up" : "down"}-line-red.svg`
+    }
+
     fetch(createPostRequest(url)).then(function (response) {
         return response.json()
     }).then(function (data) {
@@ -34,6 +38,8 @@ function vote(event) {
         downImg.src = imageSrc(false, isDownActive);
     }).catch(function (error) {
         console.error(error);
+        upImg.src = imageSrcError(true);
+        downImg.src = imageSrcError(false);
     });
 }
 
@@ -67,14 +73,14 @@ function updateRedditComments(event) {
                 location.reload();
                 return;
             } else if (status != "PENDING" && status != "STARTED") {
-                console.error(`task failed - ${status}`);
-                return;
+                throw new Error(`task failed - ${status}`);
             }
             await new Promise(r => setTimeout(r, 500));
         }
-        console.error("updateRedditComments timeout");
+        throw new Error("updateRedditComments timeout");
     }).catch(function (error) {
         console.error(error);
+        img.src = '/static/main/images/refresh-line-red.svg';
     }).finally(function() {
         img.classList.remove('rotate-infinite');
     });
