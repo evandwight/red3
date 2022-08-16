@@ -19,11 +19,11 @@
     </div>
     {% endif %}
     {%if post.external_link|isImageUrl%}
-    <div class="w-full border-dashed border-fuchsia-600 border-2 text-center">
+    <div class="w-full border-dashed border-gray-600 border-2 text-center">
         <img class="max-w-full max-h-screen mx-auto"src="{{post.external_link}}"/>
     </div>
     {%elif post.external_link|isVideoUrl%}
-        <div class="w-full border-dashed border-fuchsia-600 border-2 text-center try-load-video" data-reddit-url="{{post.reddit_link}}" hidden></div>
+        <div class="w-full border-dashed border-gray-600 border-2 text-center try-load-video" data-reddit-url="{{post.reddit_link}}" hidden></div>
     {%endif%}
     <div class="flex flex-row flex-wrap justify-start py-1">
         <div class="px-2 grow basis-0 flex justify-center">
@@ -61,12 +61,9 @@
             <div>{% include "main/components/icon-link.html" with link=submitCommentUrl svg="reply-line" title="submit comment" only %}</div>
             {% if not post.is_local %}
             <div>
-                <form action="{% url 'main:loadRedditComments' post.id %}" method="post">
-                    {% csrf_token %}
-                    <button title="refresh comments" type="submit">
-                        <img  src="{% static 'main/images/refresh-line.svg' %}" class="w-6" width=24 height=24 />
-                    </button>
-                </form>
+                <a class="onclick-update-reddit-comments" title="refresh comments" href="{% url 'main:loadRedditComments' post.id %}">
+                    <img src="{% static 'main/images/refresh-line.svg' %}" class="w-6" width=24 height=24 />
+                </a>
             </div>
             {% endif %}
         </div>

@@ -2,7 +2,6 @@
 
 function vote(event) {
     event.preventDefault();
-    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     var element = event.currentTarget;
     var url = element.getAttribute("href");
     var id = element.children[0].getAttribute("id").substring("vote-up-".length)
@@ -13,17 +12,7 @@ function vote(event) {
         return `/static/main/images/arrow-${isUp ? "up" : "down"}-line${isActive ? "-active" : ""}.svg`
     }
 
-
-    const request = new Request(
-        url,
-        {
-            method: 'POST',
-            headers: { 'X-CSRFToken': csrftoken },
-            mode: 'same-origin' // Do not send CSRF token to another domain.
-        }
-    );
-
-    fetch(request).then(function (response) {
+    fetch(createPostRequest(url)).then(function (response) {
         return response.json()
     }).then(function (data) {
         if (data.reload) {
@@ -44,7 +33,50 @@ function vote(event) {
         upImg.src = imageSrc(true, isUpActive);
         downImg.src = imageSrc(false, isDownActive);
     }).catch(function (error) {
-        console.log(error);
+        console.error(error);
+    });
+}
+
+function createPostRequest(url) {
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    return new Request(
+        url,
+        {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrftoken },
+            mode: 'same-origin' // Do not send CSRF token to another domain.
+        }
+    );
+}
+
+function updateRedditComments(event) {
+    event.preventDefault();
+    var element = event.currentTarget;
+    var url = element.getAttribute("href");
+    var img =  element.children[0];
+    img.classList.add("rotate-infinite");
+
+
+    fetch(createPostRequest(url))
+    .then(async function (r) {
+        var data = await r.json();
+        for(var i = 1; i < 100; i++) {
+            var taskData = await fetch(new Request(data.url)).then(r => r.json());
+            var status = taskData.status;
+            if (status == "SUCCESS") {
+                location.reload();
+                return;
+            } else if (status != "PENDING" && status != "STARTED") {
+                console.error(`task failed - ${status}`);
+                return;
+            }
+            await new Promise(r => setTimeout(r, 500));
+        }
+        console.error("updateRedditComments timeout");
+    }).catch(function (error) {
+        console.error(error);
+    }).finally(function() {
+        img.classList.remove('rotate-infinite');
     });
 }
 
@@ -111,6 +143,10 @@ function maybeExpand(event) {
 document.addEventListener('DOMContentLoaded', function () {
     Array.from(document.getElementsByClassName('onclick-vote')).forEach(element => {
         element.addEventListener('click', vote);
+    });
+
+    Array.from(document.getElementsByClassName('onclick-update-reddit-comments')).forEach(element => {
+        element.addEventListener('click', updateRedditComments);
     });
 
     Array.from(document.getElementsByClassName('try-load-video')).forEach(element => {

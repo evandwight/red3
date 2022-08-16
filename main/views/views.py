@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from ..models import Post, Profile, Vote
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound, JsonResponse
 from ..tasks import updateRedditComments
 from celery.result import AsyncResult
 from django.core.paginator import Paginator
@@ -93,7 +93,7 @@ def loadRedditComments(request, pk):
         return limitResponse
     
     res = updateRedditComments.delay(pk)
-    return HttpResponseRedirect(reverse('main:viewTask', args=[res.id]))
+    return JsonResponse({'url': reverse('main:viewTask', args=[res.id])})
 
 
 def getProfile(user):
@@ -122,13 +122,4 @@ def editProfile(request):
 @require_http_methods(["GET"])
 def viewTask(request, pk):
     res = AsyncResult(pk)
-    result = None
-    if res.ready():
-        result = res.get()
-
-    if res.name == 'main.tasks.updateRedditComments':
-        redirect = reverse('main:detail', args=[res.args[0]])
-    else:
-        redirect = reverse('main:index')
-
-    return render(request, 'main/viewTask.html', {'task': res, 'result': result, 'redirect': redirect})
+    return JsonResponse({'status':res.status})
