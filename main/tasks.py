@@ -119,7 +119,7 @@ def updateRedditComments(id):
 @shared_task
 def updateSomeComments():
     hoursAgo = lambda hours: datetime.now(tz=timezone.utc) - timedelta(hours=hours)
-    topIds = Post.objects.order_by(ALL_LISTING_ORDER_BY).values_list('id', flat=True)[:25]
+    topIds = Post.objects.order_by(ALL_LISTING_ORDER_BY).values_list('id', flat=True)[:100]
     ids = Post.objects.filter((Q(comment_update_time__isnull=True) 
         | Q(comment_update_time__lt=hoursAgo(4)))
         & Q(created__gt=hoursAgo(12))
