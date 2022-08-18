@@ -7,3 +7,4 @@ praw
 psaw
 python-dotenv
 redis
+djangorestframework
