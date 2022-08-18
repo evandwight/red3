@@ -1,0 +1,128 @@
+import json
+import uuid
+
+from celery.result import AsyncResult
+from django.http import (HttpResponseBadRequest, HttpResponseNotFound,
+                         JsonResponse)
+from django.urls import reverse
+from django.views.decorators.cache import cache_page
+from django.views.decorators.http import require_http_methods
+from rest_framework import serializers
+
+from ..models import Comment, Post, Profile, Vote
+from ..tasks import updateRedditComments
+from ..utils import rateLimit, rateLimitByIp
+from .utils import ALL_LISTING_ORDER_BY, NEW
+from .views import getProfileOrDefault
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = "__all__"
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = "__all__"
+
+class PostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = "__all__"
+
+
+
+def treeifyComments2(comments):
+    hashComments = {x['id']: x for x in comments}
+    depth0 = []
+    for comment in comments:
+        comment['children'] = []
+    for comment in comments:
+        if comment['parent_id']:
+            hashComments[comment['parent_id']]['children'].append(comment)
+        else:
+            depth0.append(comment)
+    return depth0
+
+@require_http_methods(["GET"])
+def commentJson(request, pk):
+    post = Post.objects.filter(id=pk).first()
+    if not post:
+        return HttpResponseNotFound
+    comments = [CommentSerializer(comment).data for comment in Comment.objects.filter(post_id=pk)]
+    comments.sort(key=lambda x: x['reddit_score'] + x['score'], reverse=True)
+    depth0 = treeifyComments2(comments)
+    return JsonResponse({'commentTree':depth0})
+
+@require_http_methods(["GET"])
+def profileJson(request):
+    return JsonResponse(ProfileSerializer(getProfileOrDefault(request)).data)
+
+@require_http_methods(["GET"])
+def commentVotesJson(request, postId):
+    post = Post.objects.filter(id=postId).first()
+    if not post:
+        return HttpResponseNotFound
+    comments = Comment.objects.filter(post_id=postId)
+    votes = Vote.objects.filter(thing_uuid__in=[x.thing_uuid for x in comments], user=request.user.id)
+    votes = {x.thing_uuid: x.direction for x in votes}
+    return JsonResponse(votes)
+
+
+
+def is_valid_uuid(value):
+    try:
+        uuid.UUID(str(value))
+        return True
+    except ValueError:
+        return False
+
+@require_http_methods(["POST"])
+def votesJson(request):
+    thingUUIDs = None
+    try:
+        json_data = json.loads(request.body)
+        thingUUIDs = json_data['list']
+        invalid = [e for e in thingUUIDs if not is_valid_uuid(e)]
+        if len(invalid) > 0:
+            return HttpResponseBadRequest('Invalid uuid entries')
+    except:
+        return HttpResponseBadRequest('Error reading json')
+    votes = Vote.objects.filter(thing_uuid__in=thingUUIDs, user=request.user.id)
+    votes = {str(x.thing_uuid): x.direction for x in votes}
+    return JsonResponse(votes)
+
+@cache_page(60*5)
+@require_http_methods(["GET"])
+def postsJson(request, sort):
+    sortMap = {'new': NEW, 'hot': ALL_LISTING_ORDER_BY}
+    sortVal = sortMap.get(sort)
+    if not sortVal:
+        return HttpResponseBadRequest('Unknown sort')
+    querySet = list(Post.objects.get_queryset().order_by(sortVal)[:1000])
+    posts = [PostSerializer(post).data for post in list(querySet)]
+    return JsonResponse({'list': posts})
+
+
+@require_http_methods(["POST"])
+def loadRedditComments(request, pk):
+    post = Post.objects.filter(id=pk).first()
+    if not post or post.is_local:
+        return HttpResponseNotFound()
+        
+    limitResponse = rateLimit('loadRedditCommentsCount', 30)
+    if limitResponse:
+        return limitResponse
+
+    limitResponse = rateLimitByIp(request, 'loadRedditCommentsIp', 2)
+    if limitResponse:
+        return limitResponse
+    
+    res = updateRedditComments.delay(pk)
+    return JsonResponse({'url': reverse('main:viewTask', args=[res.id])})
+
+@require_http_methods(["GET"])
+def viewTask(request, pk):
+    res = AsyncResult(pk)
+    return JsonResponse({'status':res.status})

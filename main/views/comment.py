@@ -1,12 +1,15 @@
-from heapq import heappush, heappop
+from heapq import heappop, heappush
+
 from django.conf import settings
-from ..models import Post, Comment, Vote, Profile
-from .views import getProfileOrDefault, applyVotes
 from django.http import HttpResponseNotFound, JsonResponse
 from django.shortcuts import render
-from ..utils import conditional_cache
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_http_methods
+
+from ..models import Comment, Post, Profile, Vote
+from ..utils import conditional_cache
+from .views import applyVotes, getProfileOrDefault
+
 
 class CommentTree:
     def __init__(self, comments):

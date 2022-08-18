@@ -1,6 +1,12 @@
 {% extends "main/base.html" %}
 {% load static %}
 {% load utils %}
+
+{% block scripts %}
+<script defer src="{% static 'js/main.21398d40.js' %}"></script>
+<link href="{% static 'css/main.48a432d8.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block title %}Actually all{% endblock %}
 
 {% block header %}
@@ -22,82 +28,5 @@
 {% endblock %}
 
 {% block content %}
-{% if page_obj %}
-<ul role="list" class="divide-y divide-gray-500">
-    {% for post in page_obj %}
-    <li class="py-1 sm:py-4">
-        {% if post.nsfw or post.mean or post.reddit_locked %}
-            <div class="flex flex-row justify-around flex-wrap py-1">
-                {% if post.nsfw %}
-                <div class="text-red-600">nsfw</div>
-                {% endif %}    
-                {% if post.mean %}
-                <div class="text-red-600">mean</div>
-                {% endif %}    
-                {% if post.reddit_locked %}
-                <div class="text-red-600">reddit_locked</div>
-                {% endif %}
-            </div>
-        {% endif %}
-        <div class="flex flex-row flex-wrap justify-start py-1">
-            <div class="px-2 grow basis-0 flex justify-center">
-                {% if post.thumbnail|isUrl %}
-                    <a href="{{post.external_link}}">
-                        <img class="max-w-none h-min" width="70" height="70" src="{{post.thumbnail}}"/>
-                    </a>
-                {% else %}
-                    <img class="max-w-none h-min" width="70" height="70" src="{% static 'main/images/text.svg' %}"/>
-                {% endif %}
-            </div>
-            <div class="grow basis-1/2 sm:basis-4/5">
-                <a href="{{'main:detail'|url2:post.id}}">
-                    {{ post.title }}
-                </a>
-            </div>
-        </div>
-        <div class="flex flex-row flex-wrap justify-around py-1 text-gray-500 text-center gap-x-1">
-            <div>{{post.subreddit_name_prefixed|default:"mm"}}</div>
-            <div>{{post.user_name|default:"anon"}}</div>
-            <div>{{post.created|timeSinceShort}}</div>
-            <div>{{post.external_link|netloc}}</div>
-        </div>
-        <div class="sm:flex sm:flex-row sm:justify-end">
-            <div class="flex flex-row justify-around py-1 sm:w-1/2 lg:w-1/3">
-                <div>{% include "main/components/vote-up-icon.html" with id=post.thing_uuid vote=post.vote only %}</div>
-                <div>{% include "main/components/vote-down-icon.html" with id=post.thing_uuid vote=post.vote only %}</div>
-                <div id="external-link-{{post.id}}">{% include "main/components/icon-link.html" with link=post.external_link svg="link" title="external link" only %}</div>
-                <div id="reddit-link-{{post.id}}">{% include "main/components/icon-link.html" with link=post.reddit_link svg="reddit-line" title="reddit link"  only %}</div>
-                <div>{% include "main/components/icon-link.html" with link="main:detail"|url2:post.id svg="discuss-line" title="view comments" only %}</div>
-            </div>
-        </div>
-    </li>
-    {% endfor %}
-</ul>
-<hr class="border-gray-500">
-<div class="pagination">
-    <div class="flex flex-row items-center justify-center">
-        {% if page_obj.has_previous %}
-        <a href="?page={{page_obj.previous_page_number}}">
-            <img src="{% static 'main/images/arrow-left-line.svg'%}" class="w-6" />
-        </a>
-        {% endif %}
-
-        <div>
-            page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-        </div>
-
-        {% if page_obj.has_next %}
-        <a href="?page={{page_obj.next_page_number}}">
-            <img src="{% static 'main/images/arrow-right-line.svg'%}" class="w-6" />
-        </a>
-        {% endif %}
-    </div>
-</div>
-{% else %}
-<p>No posts are available.</p>
-{% endif %}
-
+<div id="listing"></div>
 {% endblock %}
-</body>
-
-</html>

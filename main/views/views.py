@@ -1,54 +1,27 @@
+import re
+
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-
-from ..models import Post, Profile, Vote
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound, JsonResponse
-from ..tasks import updateRedditComments
-from celery.result import AsyncResult
-from django.core.paginator import Paginator
-from ..forms import ProfileForm, SearchForm
-from ..utils import rateLimit, rateLimitByIp, conditional_cache
 from django.views.decorators.cache import cache_page
-from .utils import ALL_LISTING_ORDER_BY, NEW
-import re
 from django.views.decorators.http import require_http_methods
-from datetime import datetime, timedelta, timezone
 
-@conditional_cache(decorator=cache_page(60))
-@require_http_methods(["GET"])
-def listing(request, sort=ALL_LISTING_ORDER_BY):
-    profile = getProfileOrDefault(request)
-    querySet = Post.objects.get_queryset()
-    querySet = querySet.filter(created__gte=(datetime.now(tz=timezone.utc) - timedelta(days=2)))
-    if not profile.show_nsfw:
-        querySet = querySet.exclude(nsfw=True)
-    if not profile.show_mean:
-        querySet = querySet.exclude(mean=True)
-    querySet = querySet.order_by(sort)
-    paginator = Paginator(querySet, 25)  # Show 25 contacts per page.
+from ..forms import ProfileForm, SearchForm
+from ..models import Post, Profile, Vote
+from ..utils import conditional_cache
 
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
 
-    if request.user.is_authenticated:
-        applyVotes(page_obj, request.user.id)
-
-    return render(request, 'main/post_list.html', {'page_obj': page_obj})
-
-@conditional_cache(decorator=cache_page(60))
+@conditional_cache(decorator=cache_page(60*5))
 @require_http_methods(["GET"])
 def listingNew(request, sort):
-    sortMap = {'new': NEW, 'hot': ALL_LISTING_ORDER_BY}
-    sortVal = sortMap.get(sort)
-    if sortVal:
-        return listing(request, sortVal)
-    else:
-        HttpResponseNotFound()
+    return render(request, 'main/post_list.html')
 
+@conditional_cache(decorator=cache_page(60*5))
 @require_http_methods(["GET"])
 def sortListings(request):
     return render(request, 'main/sortListing.html')
 
+@conditional_cache(decorator=cache_page(60*5))
 @require_http_methods(["GET", "POST"])
 def search(request):
     if not request.method == 'POST':
@@ -69,32 +42,6 @@ def search(request):
             else:
                 form.add_error(None,f"Not found - reddit id = '{redditId}'")
     return render(request, 'main/search.html', {'form': form})
-
-
-def applyVotes(things, userId):
-    votes = Vote.objects.filter(
-        thing_uuid__in=[x.thing_uuid for x in things], user=userId)
-    votes = {x.thing_uuid: x.direction for x in votes}
-    for obj in things:
-        obj.vote = votes.get(obj.thing_uuid)
-
-@require_http_methods(["POST"])
-def loadRedditComments(request, pk):
-    post = Post.objects.filter(id=pk).first()
-    if not post or post.is_local:
-        return HttpResponseNotFound()
-        
-    limitResponse = rateLimit('loadRedditCommentsCount', 30)
-    if limitResponse:
-        return limitResponse
-
-    limitResponse = rateLimitByIp(request, 'loadRedditCommentsIp', 2)
-    if limitResponse:
-        return limitResponse
-    
-    res = updateRedditComments.delay(pk)
-    return JsonResponse({'url': reverse('main:viewTask', args=[res.id])})
-
 
 def getProfile(user):
     return Profile.objects.get_or_create(user=user)[0]
@@ -119,7 +66,9 @@ def editProfile(request):
     return render(request, 'main/profile.html', {'form': form})
 
 
-@require_http_methods(["GET"])
-def viewTask(request, pk):
-    res = AsyncResult(pk)
-    return JsonResponse({'status':res.status})
+def applyVotes(things, userId):
+    votes = Vote.objects.filter(
+        thing_uuid__in=[x.thing_uuid for x in things], user=userId)
+    votes = {x.thing_uuid: x.direction for x in votes}
+    for obj in things:
+        obj.vote = votes.get(obj.thing_uuid)

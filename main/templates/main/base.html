@@ -10,6 +10,7 @@
     <link rel="shortcut icon" type="image/png" href="{% static 'main/images/favicon.ico' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'main/styles.css' %}?v12">
     <script src="{% static 'main/index.js' %}?v12"></script>
+    {% block scripts %}{% endblock %}
 
     <title>{% block title %}Mm{% endblock %}</title>
 </head>
