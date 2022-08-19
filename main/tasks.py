@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 
 import praw
 from celery import shared_task
+from celery.signals import worker_ready
 from django.core.cache import cache
 from django.db.models import F, Q
 from django.http import JsonResponse
@@ -177,5 +178,15 @@ def updatePostCacheAllSorts():
     for sort in ['new', 'hot']:
         updatePostCache(sort)
 
+@worker_ready.connect
+def at_start(sender, **k):
+    updatePostCacheAllSorts.delay()
 
-
+@shared_task
+def cleanDb():
+    oldDate = datetime.now(tz=timezone.utc) - timedelta(days=7)
+    oldPosts = Post.objects.filter(created__lte=oldDate)
+    oldPostIds = oldPosts.values_list('id', flat=True)
+    oldComments = Comment.objects.filter(post_id__in=list(oldPostIds))
+    oldComments.delete()
+    oldPosts.delete()
