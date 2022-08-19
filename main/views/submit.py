@@ -1,21 +1,20 @@
+import base64
+import os
 from datetime import datetime
-from django.utils import timezone
+
+import requests
+from django import forms
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-
+from django.utils import timezone
+from django.views.decorators.http import require_http_methods
 from main.utils import rateLimitByIp
 
-from ..models import Post, Comment
-from ..forms import PostForm, CommentForm
-from django.http import HttpResponseRedirect
-from django.shortcuts import render
-from django import forms
-import base64
-import requests
-import os
-from django.views.decorators.http import require_http_methods
-                
+from ..forms import CommentForm, PostForm
+from ..models import Comment, Post
+
+
 def hs_check_comment(comment):
   data = {
     "token": os.environ['MODERATE_HATE_SPEECH_TOKEN'],

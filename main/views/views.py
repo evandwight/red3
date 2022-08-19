@@ -23,13 +23,14 @@ def sortListings(request):
 @conditional_cache(decorator=cache_page(60*5))
 @require_http_methods(["GET", "POST"])
 def search(request):
+    loadId = None
     if not request.method == 'POST':
         form =  SearchForm()
     else:
         form = SearchForm(request.POST)
         if form.is_valid():
             searchTerm = form.cleaned_data['searchTerm']
-            match = re.match(r'^https?:\/\/.+\/r\/.+\/comments\/(.+)\/.+$', searchTerm) 
+            match = re.match(r'^https?:\/\/.+\/r\/.+\/comments\/([A-Za-z0-9]+)\/.+$', searchTerm) 
             if match:
                 redditId = match.group(1)
             else:
@@ -40,7 +41,8 @@ def search(request):
                 return HttpResponseRedirect(reverse('main:detail', kwargs={'pk':post.id}))
             else:
                 form.add_error(None,f"Not found - reddit id = '{redditId}'")
-    return render(request, 'main/search.html', {'form': form})
+                loadId = redditId
+    return render(request, 'main/search.html', {'form': form, 'loadId': loadId})
 
 def getProfile(user):
     return Profile.objects.get_or_create(user=user)[0]

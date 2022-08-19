@@ -55,7 +55,7 @@ function createPostRequest(url) {
     );
 }
 
-function updateRedditComments(event) {
+function createAndPollTask(event) {
     event.preventDefault();
     var element = event.currentTarget;
     var url = element.getAttribute("href");
@@ -65,22 +65,28 @@ function updateRedditComments(event) {
 
     fetch(createPostRequest(url))
     .then(async function (r) {
+        if (r.status !== 200) {
+            throw new Error(`${r.status} - ${r.statusText}`);
+        }
         var data = await r.json();
         for(var i = 1; i < 100; i++) {
             var taskData = await fetch(new Request(data.url)).then(r => r.json());
             var status = taskData.status;
             if (status == "SUCCESS") {
-                location.reload();
+                window.location.pathname = taskData.result;
                 return;
             } else if (status != "PENDING" && status != "STARTED") {
                 throw new Error(`task failed - ${status}`);
             }
             await new Promise(r => setTimeout(r, 500));
         }
-        throw new Error("updateRedditComments timeout");
+        throw new Error("timeout polling task");
     }).catch(function (error) {
         console.error(error);
-        img.src = '/static/main/images/refresh-line-red.svg';
+        var src = img.src;
+        if (!img.src.endsWith("-red.svg")) {
+            img.src = `${img.src.slice(0, -4)}-red.svg`;
+        }
     }).finally(function() {
         img.classList.remove('rotate-infinite');
     });
@@ -151,8 +157,8 @@ document.addEventListener('DOMContentLoaded', function () {
         element.addEventListener('click', vote);
     });
 
-    Array.from(document.getElementsByClassName('onclick-update-reddit-comments')).forEach(element => {
-        element.addEventListener('click', updateRedditComments);
+    Array.from(document.getElementsByClassName('onclick-create-task')).forEach(element => {
+        element.addEventListener('click', createAndPollTask);
     });
 
     Array.from(document.getElementsByClassName('try-load-video')).forEach(element => {

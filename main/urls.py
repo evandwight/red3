@@ -24,4 +24,5 @@ urlpatterns = [
     path('api/profile', api.profileJson, name="apiProfile"),
     path('api/loadRedditComments/<int:pk>', api.loadRedditComments, name='loadRedditComments'),
     path('api/viewTask/<str:pk>', api.viewTask, name='viewTask'),
+    path('api/loadRedditPost/<slug:pk>', api.loadRedditPost, name='loadRedditPost'),
 ]

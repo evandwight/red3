@@ -12,4 +12,12 @@
     <input id="submit" class="bg-fuchsia-600 hover:bg-fuchsia-800 text-white font-bold py-2 px-4 rounded" 
         type="submit" value="Submit">
 </form>
+{%if loadId %}
+<div class="flex f">
+    Load missing reddit post
+    <a class="onclick-create-task" title="load post" href="{% url 'main:loadRedditPost' loadId %}">
+        <img alt="load post" src="{% static 'main/images/add-line.svg' %}" class="w-6" width=24 height=24 />
+    </a>
+</div>
+{%endif%}
 {% endblock %}

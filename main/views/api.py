@@ -1,16 +1,17 @@
 import json
+import re
 import uuid
 
 from celery.result import AsyncResult
 from django.http import (HttpResponseBadRequest, HttpResponseNotFound,
-                         JsonResponse)
+                         HttpResponseRedirect, JsonResponse)
 from django.urls import reverse
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_http_methods
 from rest_framework import serializers
 
 from ..models import Comment, Post, Profile, Vote
-from ..tasks import updateRedditComments
+from ..tasks import updateRedditComments, loadRedditPostTask
 from ..utils import rateLimit, rateLimitByIp
 from .utils import ALL_LISTING_ORDER_BY, NEW
 from .views import getProfileOrDefault
@@ -127,4 +128,25 @@ def loadRedditComments(request, pk):
 @require_http_methods(["GET"])
 def viewTask(request, pk):
     res = AsyncResult(pk)
-    return JsonResponse({'status':res.status})
+    return JsonResponse({'status':res.status, 'result': res.result})
+
+@require_http_methods(["POST"])
+def loadRedditPost(request, pk):
+    match = re.match(r'^([A-Za-z0-9]{1,15})$', pk)
+    if not match:
+        return HttpResponseBadRequest('Not a reddit id')
+    redditId = match.group(1)
+    post = Post.objects.filter(reddit_id=redditId).first()
+    if post:
+        return HttpResponseRedirect(reverse('main:detail', kwargs={'pk':post.id}))
+        
+    limitResponse = rateLimit('loadRedditCommentsCount', 30)
+    if limitResponse:
+        return limitResponse
+
+    limitResponse = rateLimitByIp(request, 'loadRedditCommentsIp', 2)
+    if limitResponse:
+        return limitResponse
+    
+    res = loadRedditPostTask.delay(pk)
+    return JsonResponse({'url': reverse('main:viewTask', args=[res.id])})

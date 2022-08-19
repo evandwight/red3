@@ -1,13 +1,15 @@
-from celery import shared_task
-import praw
-from datetime import datetime, timezone, timedelta
-from psaw import PushshiftAPI
 import logging
-from main.models import Post, Comment
 import os
-from django.db.models import Q, F
+from datetime import datetime, timedelta, timezone
+
+import praw
+from celery import shared_task
+from django.db.models import F, Q
+from django.urls import reverse
+from psaw import PushshiftAPI
+
+from main.models import Comment, Post
 from main.views.utils import ALL_LISTING_ORDER_BY
-                
 
 logger = logging.getLogger(__name__)
  
@@ -34,41 +36,58 @@ def updateAllListing():
             dbPost.upvote_ratio = redditPost.upvote_ratio
             dbPost.reddit_locked = redditPost.locked
         else:
-            dbPost = Post(
-                reddit_id=id, 
-                title=redditPost.title, 
-                created=datetime.fromtimestamp(redditPost.created_utc, tz=timezone.utc),
-                reddit_score=redditPost.score,
-                upvote_ratio=redditPost.upvote_ratio,
-                reddit_link="https://reddit.com" + redditPost.permalink,
-                external_link=redditPost.url,
-                subreddit_name_prefixed=redditPost.subreddit_name_prefixed,
-                user_name=(redditPost.author and redditPost.author.name) or "reddit-anon",
-                nsfw=redditPost.over_18,
-                text=redditPost.selftext,
-                thumbnail=redditPost.thumbnail,
-                reddit_locked = redditPost.locked
-                )
+            dbPost = createDbPostFromRedditPost(redditPost)
         dbPost.save()
+
+def createDbPostFromRedditPost(redditPost):
+    return Post(
+        reddit_id=redditPost.id, 
+        title=redditPost.title, 
+        created=datetime.fromtimestamp(redditPost.created_utc, tz=timezone.utc),
+        reddit_score=redditPost.score,
+        upvote_ratio=redditPost.upvote_ratio,
+        reddit_link="https://reddit.com" + redditPost.permalink,
+        external_link=redditPost.url,
+        subreddit_name_prefixed=redditPost.subreddit_name_prefixed,
+        user_name=(redditPost.author and redditPost.author.name) or "reddit-anon",
+        nsfw=redditPost.over_18,
+        text=redditPost.selftext,
+        thumbnail=redditPost.thumbnail,
+        reddit_locked = redditPost.locked
+        )
     
 def getComments(submissionId):
-    comments = reddit.submission(submissionId).comments
-    comments.replace_more(limit=0)
-    comments = comments.list()
-    for i, comment in enumerate(comments):
-        if comment.score_hidden:
-            comment.score = len(comments) - i
+    comments = reddit.submission(submissionId)
     return comments
 
 def isCommentRemoved(comment):
     return comment.body == '[removed]' and comment.author is None
+
 
 @shared_task
 def updateRedditComments(id):
     post = Post.objects.get(id=id)
     if post.is_local:
         return
-    comments = getComments(post.reddit_id)
+    updateComments(reddit.submission(post.reddit_id), post)
+    return reverse('main:detail', kwargs={'pk':post.id})
+
+@shared_task
+def loadRedditPostTask(redditId):
+    print(redditId)
+    redditSubmission = reddit.submission(redditId)
+    dbPost = createDbPostFromRedditPost(redditSubmission)
+    dbPost.save()
+    updateComments(redditSubmission, dbPost)
+    return reverse('main:detail', kwargs={'pk':dbPost.id})
+
+def updateComments(redditSubmission, post):
+    comments = redditSubmission.comments
+    comments.replace_more(limit=0)
+    comments = comments.list()
+    for i, comment in enumerate(comments):
+        if comment.score_hidden:
+            comment.score = len(comments) - i
     comments.sort(key=lambda comment: comment.depth)
     removedComments = []
     for comment in comments:
@@ -128,3 +147,5 @@ def updateSomeComments():
         .values_list('id', flat=True)[:1]
     for id in ids:
         updateRedditComments(id)
+
+
