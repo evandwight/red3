@@ -87,7 +87,10 @@ def postsJson(request, sort):
     if not val:
         return JsonResponse({'list':[]})
     else:
-        return val
+        response = JsonResponse(val)
+        cacheAge = {'new': 60, 'hot': 60*5}
+        response['Cache-Control'] = 'max-age=%d' % cacheAge[sort]
+        return JsonResponse(val)
 
 
 @require_http_methods(["POST"])

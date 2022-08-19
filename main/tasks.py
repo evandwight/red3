@@ -144,10 +144,9 @@ def updateComments(redditSubmission, post):
 @shared_task
 def updateSomeComments():
     hoursAgo = lambda hours: datetime.now(tz=timezone.utc) - timedelta(hours=hours)
-    hotPostsJson = cache.get(listingCacheKey('hot'))
-    if not hotPostsJson:
+    hotPosts = cache.get(listingCacheKey('hot'))
+    if not hotPosts:
         raise Exception('hot posts not found')
-    hotPosts = json.loads(hotPostsJson.content)
     hotIds = [post['id'] for post in  hotPosts['list']][:100]
     ids = Post.objects.filter(Q(id__in=hotIds) & Q(created__gt=hoursAgo(12)) & 
             (Q(comment_update_time__isnull=True) | Q(comment_update_time__lt=hoursAgo(4)))) \
@@ -164,14 +163,13 @@ def updatePostCache(sort):
     sortMap = {'new': NEW, 'hot': ALL_LISTING_ORDER_BY}
     sortVal = sortMap.get(sort)
     if not sortVal:
-        return JsonResponse({})
+        return
     # TODO speed up this query
     querySet = Post.objects.get_queryset() \
         .filter(created__gte=datetime.now(tz=timezone.utc) - timedelta(days=2)) \
         .order_by(sortVal)
     posts = [PostSerializer(post).data for post in list(querySet)]
-    postJson = JsonResponse({'list': posts})
-    cache.set(listingCacheKey(sort), postJson, 60*10)
+    cache.set(listingCacheKey(sort), {'list': posts}, 60*10)
 
 @shared_task
 def updatePostCacheAllSorts():
