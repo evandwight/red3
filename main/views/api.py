@@ -80,6 +80,8 @@ def is_valid_uuid(value):
 
 @require_http_methods(["POST"])
 def votesJson(request):
+    if not request.user.is_authenticated:
+        return JsonResponse(dict())
     thingUUIDs = None
     try:
         json_data = json.loads(request.body)

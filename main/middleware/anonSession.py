@@ -8,6 +8,8 @@ from django.urls.exceptions import Resolver404
 from red3.urls import urlpatterns
 
 
+CREATE_URL_NAMES = ['upvote', 'downvote', 'submit', 'submitPost', 'submitComment', 'profile']
+
 def anonSessionMiddleware(get_response):
     # One-time configuration and initialization.
 
@@ -16,7 +18,7 @@ def anonSessionMiddleware(get_response):
             resolveMatch = resolve(request.path)
             if request.method == 'POST' \
                 and not request.user.is_authenticated \
-                and not resolveMatch.url_name in ['login', 'logout']:
+                and resolveMatch.url_name in CREATE_URL_NAMES:
                 user = User.objects.create_user(username=f'anon-{uuid.uuid4()}')
                 user.save()
                 user.username = f'anon-{user.id}'

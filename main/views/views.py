@@ -11,7 +11,6 @@ from ..models import Post, Profile, Vote
 from ..utils import conditional_cache
 
 
-@conditional_cache(decorator=cache_page(60*5))
 @require_http_methods(["GET"])
 def listingNew(request, sort):
     return render(request, 'main/post_list.html')

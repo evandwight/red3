@@ -105,7 +105,11 @@ export function getCsrfToken() {
 function vote(post, isUpVote, updateVote) {
     updateVote(post.thing_uuid, isUpVote);
     axios.post(URL_UPVOTE(post.thing_uuid), {}, { headers: { 'X-CSRFToken': getCsrfToken() } })
-        .catch(err => console.error(err))
+        .then(result => {
+            if (result.data.reload) {
+                window.location.reload();
+            }
+        }).catch(err => console.error(err))
 
 }
 export function Post({ post, votes, setters }) {
