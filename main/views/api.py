@@ -4,35 +4,19 @@ import uuid
 from datetime import datetime, timedelta, timezone
 
 from celery.result import AsyncResult
+from django.core.cache import cache
 from django.http import (HttpResponseBadRequest, HttpResponseNotFound,
                          HttpResponseRedirect, JsonResponse)
 from django.urls import reverse
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_http_methods
-from rest_framework import serializers
 
 from ..models import Comment, Post, Profile, Vote
-from ..tasks import loadRedditPostTask, updateRedditComments
+from ..tasks import listingCacheKey, loadRedditPostTask, updateRedditComments
 from ..utils import rateLimit, rateLimitByIp
-from .utils import ALL_LISTING_ORDER_BY, NEW
+from .utils import (ALL_LISTING_ORDER_BY, NEW, CommentSerializer,
+                    PostSerializer, ProfileSerializer)
 from .views import getProfileOrDefault
-
-
-class CommentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comment
-        fields = "__all__"
-
-class ProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = "__all__"
-
-class PostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Post
-        fields = "__all__"
-
 
 
 def treeifyComments2(comments):
@@ -97,19 +81,13 @@ def votesJson(request):
     votes = {str(x.thing_uuid): x.direction for x in votes}
     return JsonResponse(votes)
 
-@cache_page(60*5)
 @require_http_methods(["GET"])
 def postsJson(request, sort):
-    sortMap = {'new': NEW, 'hot': ALL_LISTING_ORDER_BY}
-    sortVal = sortMap.get(sort)
-    if not sortVal:
-        return HttpResponseBadRequest('Unknown sort')
-    # TODO speed up this query
-    querySet = Post.objects.get_queryset() \
-        .filter(created__gte=datetime.now(tz=timezone.utc) - timedelta(days=2)) \
-        .order_by(sortVal)
-    posts = [PostSerializer(post).data for post in list(querySet)]
-    return JsonResponse({'list': posts})
+    val = cache.get(listingCacheKey(sort))
+    if not val:
+        return JsonResponse({'list':[]})
+    else:
+        return val
 
 
 @require_http_methods(["POST"])

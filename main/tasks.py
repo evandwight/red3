@@ -1,15 +1,20 @@
+import json
 import logging
 import os
 from datetime import datetime, timedelta, timezone
 
 import praw
 from celery import shared_task
+from django.core.cache import cache
 from django.db.models import F, Q
+from django.http import JsonResponse
 from django.urls import reverse
 from psaw import PushshiftAPI
 
 from main.models import Comment, Post
-from main.views.utils import ALL_LISTING_ORDER_BY
+from main.views.utils import ALL_LISTING_ORDER_BY, NEW
+
+from .views.utils import PostSerializer
 
 logger = logging.getLogger(__name__)
  
@@ -138,15 +143,39 @@ def updateComments(redditSubmission, post):
 @shared_task
 def updateSomeComments():
     hoursAgo = lambda hours: datetime.now(tz=timezone.utc) - timedelta(hours=hours)
-    # prevent full table scan
-    # TODO use cached /api/postJson instead
-    filter = ((Q(comment_update_time__isnull=True) \
-        | Q(comment_update_time__lt=hoursAgo(4))) & Q(created__gt=hoursAgo(12)))
-    topIds = Post.objects.filter(filter).order_by(ALL_LISTING_ORDER_BY).values_list('id', flat=True)[:100]
-    ids = Post.objects.filter(Q(id__in=topIds)) \
+    hotPostsJson = cache.get(listingCacheKey('hot'))
+    if not hotPostsJson:
+        raise Exception('hot posts not found')
+    hotPosts = json.loads(hotPostsJson.content)
+    hotIds = [post['id'] for post in  hotPosts['list']][:100]
+    ids = Post.objects.filter(Q(id__in=hotIds) & Q(created__gt=hoursAgo(12)) & 
+            (Q(comment_update_time__isnull=True) | Q(comment_update_time__lt=hoursAgo(4)))) \
         .order_by(F('comment_update_time').asc(nulls_last=False)) \
         .values_list('id', flat=True)[:1]
     for id in ids:
         updateRedditComments(id)
+
+def listingCacheKey(sort):
+    return f'listing-{sort}'
+
+@shared_task
+def updatePostCache(sort):
+    sortMap = {'new': NEW, 'hot': ALL_LISTING_ORDER_BY}
+    sortVal = sortMap.get(sort)
+    if not sortVal:
+        return JsonResponse({})
+    # TODO speed up this query
+    querySet = Post.objects.get_queryset() \
+        .filter(created__gte=datetime.now(tz=timezone.utc) - timedelta(days=2)) \
+        .order_by(sortVal)
+    posts = [PostSerializer(post).data for post in list(querySet)]
+    postJson = JsonResponse({'list': posts})
+    cache.set(listingCacheKey(sort), postJson, 60*10)
+
+@shared_task
+def updatePostCacheAllSorts():
+    for sort in ['new', 'hot']:
+        updatePostCache(sort)
+
 
 

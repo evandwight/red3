@@ -20,6 +20,7 @@ app.conf.update(
     beat_schedule={
         'updateAllListing': {'task': 'main.tasks.updateAllListing','schedule': 60*5,},
         'updateSomeComments': {'task': 'main.tasks.updateSomeComments','schedule': 60,},
+        'updatePostCacheAllSorts': {'task': 'main.tasks.updatePostCacheAllSorts','schedule': 60,},
     },
 )
 

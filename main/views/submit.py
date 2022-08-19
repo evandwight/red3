@@ -9,6 +9,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
+from main.tasks import updatePostCache
 from main.utils import rateLimitByIp
 
 from ..forms import CommentForm, PostForm
@@ -69,6 +70,7 @@ def submitPost(request):
                 override_mean = overrideMean,
             )
             dbPost.save()
+            updatePostCache.delay('new')
             return HttpResponseRedirect(reverse('main:detail', kwargs={'pk':dbPost.id}))
 
 @require_http_methods(["GET", "POST"])
