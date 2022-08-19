@@ -113,6 +113,8 @@ function vote(post, isUpVote, updateVote) {
 
 }
 export function Post({ post, votes, setters }) {
+    const voteDirection = votes ? votes[post.thing_uuid] : null;
+    const disableVote = !votes;
     return <div>
         <Tags post={post} />
         <div className="flex flex-row flex-wrap justify-start py-1">
@@ -138,11 +140,11 @@ export function Post({ post, votes, setters }) {
         </div>
         <div className="sm:flex sm:flex-row sm:justify-end">
             <div className="flex flex-row justify-around py-1 sm:w-1/2 lg:w-1/3">
-                <button title="up vote" onClick={() => vote(post, true, setters.updateVote)}>
-                    <UpArrow style={{ fill: (votes[post.thing_uuid] === "UP" ? "#F97316" : "#d946ef") }} className="w-6" />
+                <button title="up vote" onClick={() => vote(post, true, setters.updateVote)} disabled={disableVote}>
+                    <UpArrow style={{ fill: (voteDirection === "UP" ? "#F97316" : "#d946ef") }} className="w-6" />
                 </button>
-                <button title="down vote" onClick={() => vote(post, false, setters.updateVote)}>
-                    <DownArrow style={{ fill: (votes[post.thing_uuid] === "DN" ? "#F97316" : "#d946ef") }} className="w-6" />
+                <button title="down vote" onClick={() => vote(post, false, setters.updateVote)} disabled={disableVote}>
+                    <DownArrow style={{ fill: (voteDirection === "DN" ? "#F97316" : "#d946ef") }} className="w-6" />
                 </button>
                 <div id={`external-link-${post.id}`}><IconLink link={post.external_link} Img={LinkSvg} title="external link" /></div>
                 <div id={`reddit-link-${post.id}`}><IconLink link={post.reddit_link} Img={RedditLine} title="reddit link" /></div>

@@ -50,7 +50,7 @@ function App() {
         wrapperRef?.current?.scrollIntoView();
     }, [page]);
     const setters = { setVotes, updatePage, updateVote };
-    if (posts && votes && profile) {
+    if (posts && profile) {
         console.log({ votes, page })
         return <>
             <div ref={wrapperRef}></div>
@@ -58,7 +58,7 @@ function App() {
         </>
     } else {
         return <div>
-            Loading
+            Loading posts
         </div>
     }
 }

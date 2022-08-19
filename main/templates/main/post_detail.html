@@ -20,7 +20,7 @@
     {% endif %}
     {%if post.external_link|isImageUrl%}
     <div class="w-full border-dashed border-gray-600 border-2 text-center">
-        <img class="max-w-full max-h-screen mx-auto"src="{{post.external_link}}"/>
+        <img alt="" class="max-w-full max-h-screen mx-auto"src="{{post.external_link}}"/>
     </div>
     {%elif post.external_link|isVideoUrl%}
         <div class="w-full border-dashed border-gray-600 border-2 text-center try-load-video" data-reddit-url="{{post.reddit_link}}" hidden></div>
@@ -29,10 +29,10 @@
         <div class="px-2 grow basis-0 flex justify-center">
             {% if post.thumbnail|isUrl %}
                 <a href="{{post.external_link}}">
-                    <img class="max-w-none h-min" width="70" height="70" src="{{post.thumbnail}}"/>
+                    <img alt="" class="max-w-none h-min" width="70" height="70" src="{{post.thumbnail}}"/>
                 </a>
             {% else %}
-                <img class="max-w-none h-min" width="70" height="70" src="{% static 'main/images/text.svg' %}"/>
+                <img alt="" class="max-w-none h-min" width="70" height="70" src="{% static 'main/images/text.svg' %}"/>
             {% endif %}
         </div>
         <div class="grow basis-1/2 sm:basis-4/5">
@@ -61,8 +61,8 @@
             <div>{% include "main/components/icon-link.html" with link=submitCommentUrl svg="reply-line" title="submit comment" only %}</div>
             {% if not post.is_local %}
             <div>
-                <a class="onclick-update-reddit-comments" title="refresh comments" href="{% url 'main:loadRedditComments' post.id %}">
-                    <img src="{% static 'main/images/refresh-line.svg' %}" class="w-6" width=24 height=24 />
+                <a class="onclick-create-task" title="refresh comments" href="{% url 'main:loadRedditComments' post.id %}">
+                    <img alt="refresh comments" src="{% static 'main/images/refresh-line.svg' %}" class="w-6" width=24 height=24 />
                 </a>
             </div>
             {% endif %}
