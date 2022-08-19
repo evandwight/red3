@@ -18,10 +18,11 @@ app.conf.update(
     result_extended=True,
     task_track_started=True,
     beat_schedule={
-        'updateAllListing': {'task': 'main.tasks.updateAllListing','schedule': 60*5,},
+        'updateAllListing': {'task': 'main.tasks.updateAllListing','schedule': crontab(minute="0,5,10,15,20,25,30,35,40,45,50,55"),},
         'updateSomeComments': {'task': 'main.tasks.updateSomeComments','schedule': 60,},
-        'updatePostCache-hot': {'task': 'main.tasks.updatePostCache', 'args': ['hot'], 'schedule': 60*5,},
+        'updatePostCache-hot': {'task': 'main.tasks.updatePostCache', 'args': ['hot'], 'schedule': crontab(minute="1,6,11,16,21,26,31,36,41,46,51,56"),},
         'updatePostCache-new': {'task': 'main.tasks.updatePostCache', 'args': ['new'],'schedule': 60,},
+        'cleanDb': {'task': 'main.tasks.cleanDb','schedule': crontab(hour=4, minute=0),},
     },
 )
 
