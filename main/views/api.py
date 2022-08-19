@@ -1,6 +1,7 @@
 import json
 import re
 import uuid
+from datetime import datetime, timedelta, timezone
 
 from celery.result import AsyncResult
 from django.http import (HttpResponseBadRequest, HttpResponseNotFound,
@@ -11,7 +12,7 @@ from django.views.decorators.http import require_http_methods
 from rest_framework import serializers
 
 from ..models import Comment, Post, Profile, Vote
-from ..tasks import updateRedditComments, loadRedditPostTask
+from ..tasks import loadRedditPostTask, updateRedditComments
 from ..utils import rateLimit, rateLimitByIp
 from .utils import ALL_LISTING_ORDER_BY, NEW
 from .views import getProfileOrDefault
@@ -103,7 +104,10 @@ def postsJson(request, sort):
     sortVal = sortMap.get(sort)
     if not sortVal:
         return HttpResponseBadRequest('Unknown sort')
-    querySet = list(Post.objects.get_queryset().order_by(sortVal)[:1000])
+    # TODO speed up this query
+    querySet = Post.objects.get_queryset() \
+        .filter(created__gte=datetime.now(tz=timezone.utc) - timedelta(days=2)) \
+        .order_by(sortVal)
     posts = [PostSerializer(post).data for post in list(querySet)]
     return JsonResponse({'list': posts})
 
