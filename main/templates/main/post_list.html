@@ -3,7 +3,7 @@
 {% load utils %}
 
 {% block scripts %}
-<script defer src="{% static 'js/main.bc6d27d2.js' %}"></script>
+<script defer src="{% static 'js/main.41877f64.js' %}"></script>
 <link href="{% static 'css/main.48a432d8.css' %}" rel="stylesheet">
 {% endblock %}
 
@@ -12,17 +12,17 @@
 {% block header %}
 <div class="pl-2">
     <a href="{% url 'main:submitPost' %}" title="submit post">
-        <img src="{% static 'main/images/add-line.svg' %}" />
+        <img alt="add post" src="{% static 'main/images/add-line.svg' %}" />
     </a>
 </div>
 <div class="pl-2">
     <a href="{% url 'main:search' %}" title="search">
-        <img src="{% static 'main/images/search.svg' %}" />
+        <img alt="search for post" src="{% static 'main/images/search.svg' %}" />
     </a>
 </div>
 <div class="pl-2">
     <a href="{% url 'main:sortListing' %}" title="sort listing">
-        <img src="{% static 'main/images/sort-desc.svg' %}" />
+        <img  alt="sort posts" src="{% static 'main/images/sort-desc.svg' %}" />
     </a>
 </div>
 {% endblock %}

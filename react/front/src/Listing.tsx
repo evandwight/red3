@@ -77,8 +77,8 @@ export function timeSinceShort(value: Date) {
     let days = seconds / 86400;
     if (days > 365) {
         return `${(days / 365).toFixed(1)}y`;
-    } else if (days > 0) {
-        return `${days.toFixed(0)}d`;
+    } else if (days >= 1) {
+        return `${days.toFixed(1)}d`;
     } else {
         return `${(seconds / 3600).toFixed(1)}h`;
     }
