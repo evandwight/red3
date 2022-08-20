@@ -37,6 +37,7 @@ function App() {
     }
     useEffect(() => { axios('/api/profile').then(result => setProfile(result.data))}, [])
     useEffect(() => {
+        setPosts(null);
         axios(`/api/listing/sort=${sort}?page=${page}`)
             .then(result => {
                 setPosts(result.data.list);
