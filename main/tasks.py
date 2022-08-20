@@ -16,6 +16,7 @@ from main.models import Comment, Post
 from main.views.utils import ALL_LISTING_ORDER_BY, NEW
 
 from .views.utils import PostSerializer
+import psutil
 
 logger = logging.getLogger(__name__)
  
@@ -29,8 +30,13 @@ reddit = praw.Reddit(
 
 pushshift = PushshiftAPI()
 
+def busy():
+    return psutil.cpu_percent() > 80
+
 @shared_task
 def updateAllListing():
+    if busy():
+        return
     sfwPosts = list(reddit.subreddit("all").hot(limit=500))
     nsfwPosts = list(reddit.subreddit(nsfwSubreddits).hot(limit=100))
     all = sfwPosts + nsfwPosts
@@ -143,6 +149,8 @@ def updateComments(redditSubmission, post):
 
 @shared_task
 def updateSomeComments():
+    if busy():
+        return
     hoursAgo = lambda hours: datetime.now(tz=timezone.utc) - timedelta(hours=hours)
     hotPosts = cache.get(listingCacheKey('hot'))
     if not hotPosts:
