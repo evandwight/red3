@@ -16,6 +16,7 @@ function App() {
     const [votes, setVotes] = useState<any>(null);
     const [profile, setProfile] = useState<any>(null);
     const [page, setPage] = useState<any>(parseInt(new URLSearchParams(window.location.search).get('page') || "1"));
+    const [numPages, setNumPages] = useState<number>(0);
     const sort = getSort();
     const wrapperRef: any = useRef(null);
     const updatePage = (newPage) => {
@@ -34,10 +35,14 @@ function App() {
     window.onpopstate = (e) => {
         setPage(parseInt(new URLSearchParams(window.location.search).get('page') || "1"));
     }
+    useEffect(() => { axios('/api/profile').then(result => setProfile(result.data))}, [])
     useEffect(() => {
-        axios(`/api/listing/sort=${sort}`).then(result => setPosts(result.data.list));
-        axios('/api/profile').then(result => setProfile(result.data));
-    }, [sort]);
+        axios(`/api/listing/sort=${sort}?page=${page}`)
+            .then(result => {
+                setPosts(result.data.list);
+                setNumPages(result.data.numPages);
+            });
+    }, [sort, page]);
     useEffect(() => {
         if (!posts) {
             return;
@@ -54,7 +59,7 @@ function App() {
         console.log({ votes, page })
         return <>
             <div ref={wrapperRef}></div>
-            <Listing {... { posts, votes, profile, page, setters }} />
+            <Listing {... { posts, votes, profile, page, numPages, setters }} />
         </>
     } else {
         return <div>

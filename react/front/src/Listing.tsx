@@ -22,24 +22,20 @@ export function URL_DNVOTE(id) {
     return `/dnvote/${id}/`;
 }
 
-const PAGE_SIZE = 25;
-
-export function Listing({ posts, votes, profile, page, setters }) {
+export function Listing({ posts, votes, profile, page, numPages, setters }) {
     const filteredPosts = posts.filter(post => (
         (!post.mean || profile.show_mean)
         && (!post.nsfw || profile.show_nsfw)));
-    const pagedPosts = filteredPosts.filter((_, i) => i >= (page - 1) * PAGE_SIZE && i < page * PAGE_SIZE)
 
-    const numPages = Math.ceil(filteredPosts.length / PAGE_SIZE);
     const hasPrevPage = page > 1;
     const hasNextPage = page < numPages;
 
-    if (pagedPosts.length === 0) {
+    if (filteredPosts.length === 0) {
         return <p>No posts are available</p>
     } else {
         return <>
             <ul className="divide-y divide-gray-500">
-                {pagedPosts.map((post, i) => <Post key={i} {... { post, votes, setters }} />)}
+                {filteredPosts.map((post, i) => <Post key={i} {... { post, votes, setters }} />)}
             </ul>
             <hr className="border-gray-500" />
             <div className="pagination">

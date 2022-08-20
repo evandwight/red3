@@ -1,4 +1,5 @@
 import json
+from math import ceil
 import re
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -83,13 +84,16 @@ def votesJson(request):
 
 @require_http_methods(["GET"])
 def postsJson(request, sort):
+    page_number = int(request.GET.get('page')) if request.GET.get('page') else 1
     val = cache.get(listingCacheKey(sort))
     if not val:
-        return JsonResponse({'list':[]})
+        return JsonResponse({'list':[], 'numPages': 0})
     else:
-        response = JsonResponse(val)
-        cacheAge = {'new': 60, 'hot': 300}
-        response['Cache-Control'] = 'public, max-age=%d' % cacheAge[sort]
+        PAGE_SIZE=200
+        l = val['list']
+        pagedList = l[(page_number-1)*PAGE_SIZE:(page_number)*PAGE_SIZE]
+        response = JsonResponse({'list':pagedList, 'numPages': ceil(len(l) / PAGE_SIZE)})
+        response['Cache-Control'] = 'public, max-age=%d' % 60
         return response
 
 @require_http_methods(["POST"])
