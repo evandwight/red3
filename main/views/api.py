@@ -88,10 +88,9 @@ def postsJson(request, sort):
         return JsonResponse({'list':[]})
     else:
         response = JsonResponse(val)
-        cacheAge = {'new': 60, 'hot': 60*5}
+        cacheAge = {'new': 60, 'hot': 300}
         response['Cache-Control'] = 'public, max-age=%d' % cacheAge[sort]
-        print(response['Cache-Control'])
-        return JsonResponse(val)
+        return response
 
 @require_http_methods(["POST"])
 def loadRedditComments(request, pk):
