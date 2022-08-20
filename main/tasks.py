@@ -30,13 +30,13 @@ reddit = praw.Reddit(
 
 pushshift = PushshiftAPI()
 
-def busy():
-    return psutil.cpu_percent() > 80
+def skipIfBusy():
+    if psutil.cpu_percent() > 80:
+        raise Exception('busy cpu')
 
 @shared_task
 def updateAllListing():
-    if busy():
-        return
+    skipIfBusy()
     sfwPosts = list(reddit.subreddit("all").hot(limit=500))
     nsfwPosts = list(reddit.subreddit(nsfwSubreddits).hot(limit=100))
     all = sfwPosts + nsfwPosts
@@ -78,6 +78,7 @@ def isCommentRemoved(comment):
 
 @shared_task
 def updateRedditComments(id):
+    skipIfBusy()
     post = Post.objects.get(id=id)
     if post.is_local:
         return
@@ -86,7 +87,7 @@ def updateRedditComments(id):
 
 @shared_task
 def loadRedditPostTask(redditId):
-    print(redditId)
+    skipIfBusy()
     redditSubmission = reddit.submission(redditId)
     dbPost = createDbPostFromRedditPost(redditSubmission)
     dbPost.save()
@@ -149,8 +150,7 @@ def updateComments(redditSubmission, post):
 
 @shared_task
 def updateSomeComments():
-    if busy():
-        return
+    skipIfBusy()
     hoursAgo = lambda hours: datetime.now(tz=timezone.utc) - timedelta(hours=hours)
     hotPosts = cache.get(listingCacheKey('hot'))
     if not hotPosts:
