@@ -175,7 +175,7 @@ def updatePostCache(sort):
     # TODO speed up this query
     querySet = Post.objects.get_queryset() \
         .filter(created__gte=datetime.now(tz=timezone.utc) - timedelta(days=2)) \
-        .order_by(sortVal)
+        .order_by(sortVal)[:1000]
     posts = [PostSerializer(post).data for post in list(querySet)]
     cache.set(listingCacheKey(sort), {'list': posts}, 60*10)
 

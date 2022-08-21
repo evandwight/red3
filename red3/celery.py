@@ -21,7 +21,7 @@ app.conf.update(
         'updateAllListing': {'task': 'main.tasks.updateAllListing','schedule': crontab(minute="0,5,10,15,20,25,30,35,40,45,50,55"),},
         'updateSomeComments': {'task': 'main.tasks.updateSomeComments','schedule': 60,},
         'updatePostCache-hot': {'task': 'main.tasks.updatePostCache', 'args': ['hot'], 'schedule': crontab(minute="1,6,11,16,21,26,31,36,41,46,51,56"),},
-        'updatePostCache-new': {'task': 'main.tasks.updatePostCache', 'args': ['new'],'schedule': 60,},
+        'updatePostCache-new': {'task': 'main.tasks.updatePostCache', 'args': ['new'],'schedule': crontab(minute="2,7,12,17,22,27,32,37,42,47,52,57"),},
         'cleanDb': {'task': 'main.tasks.cleanDb','schedule': crontab(hour=4, minute=0),},
     },
 )
