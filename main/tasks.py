@@ -39,7 +39,7 @@ def skipIfBusy():
 def updateAllListing():
     skipIfBusy()
     start = time.time()
-    sfwPosts = list(reddit.subreddit("all").hot(limit=500))
+    sfwPosts = list(reddit.subreddit("all").hot(limit=100))
     nsfwPosts = list(reddit.subreddit(nsfwSubreddits).hot(limit=100))
     print('afterload - ' + str(time.time() - start))
     all = sfwPosts + nsfwPosts
