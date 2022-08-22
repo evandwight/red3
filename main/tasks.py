@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from datetime import datetime, timedelta, timezone
+import time
 
 import praw
 from celery import shared_task
@@ -37,8 +38,10 @@ def skipIfBusy():
 @shared_task
 def updateAllListing():
     skipIfBusy()
+    start = time.time()
     sfwPosts = list(reddit.subreddit("all").hot(limit=500))
     nsfwPosts = list(reddit.subreddit(nsfwSubreddits).hot(limit=100))
+    print('afterload - ' + time.time() - start)
     all = sfwPosts + nsfwPosts
     for redditPost in all:
         id = redditPost.id
@@ -50,6 +53,7 @@ def updateAllListing():
         else:
             dbPost = createDbPostFromRedditPost(redditPost)
         dbPost.save()
+    print('aftersave - ' + time.time() - start)
 
 def createDbPostFromRedditPost(redditPost):
     return Post(
