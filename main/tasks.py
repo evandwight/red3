@@ -41,7 +41,7 @@ def updateAllListing():
     start = time.time()
     sfwPosts = list(reddit.subreddit("all").hot(limit=500))
     nsfwPosts = list(reddit.subreddit(nsfwSubreddits).hot(limit=100))
-    print('afterload - ' + time.time() - start)
+    print('afterload - ' + str(time.time() - start))
     all = sfwPosts + nsfwPosts
     for redditPost in all:
         id = redditPost.id
@@ -53,7 +53,7 @@ def updateAllListing():
         else:
             dbPost = createDbPostFromRedditPost(redditPost)
         dbPost.save()
-    print('aftersave - ' + time.time() - start)
+    print('aftersave - ' + str(time.time() - start))
 
 def createDbPostFromRedditPost(redditPost):
     return Post(
