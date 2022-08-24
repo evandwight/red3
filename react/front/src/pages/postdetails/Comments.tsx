@@ -7,35 +7,51 @@ import { ReactComponent as ReplyLine } from 'svg/reply-line.svg';
 import { filterByProfile, filterReason, timeSinceShort, URL_SUBMIT_COMMENT } from 'utils';
 
 
-export function Comments({ post, nodes, profile, votes, setters }) {
+export const COLLAPSE_COMMENT_LIMIT = 50;
+
+export function Comments({ post, nodes, collapseInitial, parentId, profile, votes, setters }) {
+    const shouldCollapseInitial = collapseInitial[parentId];
+    const expandedNodes = shouldCollapseInitial ? nodes.filter(node => node.collapseOrder <= COLLAPSE_COMMENT_LIMIT) : nodes;
+    const collapsedNodeCount = nodes.length - expandedNodes.length;
     return <div>
-        {nodes.map((node, i) => {
+        {expandedNodes.map((node, i) => {
             let { comment } = node;
             const hidden = filterByProfile(comment, profile);
-            return <div>
-                <div key={i} className="flex flex-row py-1 sm:py-4" id={`comment-${node.id}`}>
-                    <div className={`flex flex-none justify-end px-2 comment-depth-${Math.min(node.depth, 9)}`}>
-                        <div className={`w-1 h-full py-2 rounded-sm self-center comment-depth-color-${node.depth % 6}`}></div>
-                    </div>
-                    <div className="grow">
-                        <Tags post={comment} />
-                        {hidden
-                            ? <div>
-                                <div><UserText text={comment.text} /></div>
-                                <CommentInfo comment={comment} />
-                                <CommentButtons {...{ post, comment, votes, setters }} />
-                                <CommentNavigation {... { node, setters }} />
-                            </div>
-                            : <div>
-                                {filterReason(comment, profile)}
-                            </div>}
-                    </div>
-                </div>
+            return <div key={i} id={`comment-${node.id}`}>
+                <CommentDepth depth={node.depth}>
+                    <Tags post={comment} />
+                    {hidden
+                        ? <div>
+                            <div><UserText text={comment.text} /></div>
+                            <CommentInfo comment={comment} />
+                            <CommentButtons {...{ post, comment, votes, setters }} />
+                            <CommentNavigation {... { node, setters }} />
+                        </div>
+                        : <div>
+                            {filterReason(comment, profile)}
+                        </div>}
+                </CommentDepth>
                 {hidden && <div>
-                    <Comments {... {post, nodes:node.children, profile, votes, setters}}/>
+                    <Comments {... { post, nodes: node.children, collapseInitial, parentId: node.id, profile, votes, setters }} />
                 </div>}
             </div>
         })}
+        {shouldCollapseInitial && collapsedNodeCount > 0 && <CommentDepth depth={nodes[0].depth}>
+            <button onClick={() => setters.updateCollapseInitial(parentId)}>
+                {collapsedNodeCount} more replies
+            </button>
+        </CommentDepth>}
+    </div>
+}
+
+export function CommentDepth({ depth, children }) {
+    return <div className="flex flex-row py-1 sm:py-4">
+        <div className={`flex flex-none justify-end px-2 comment-depth-${Math.min(depth, 9)}`}>
+            <div className={`w-1 h-full py-2 rounded-sm self-center comment-depth-color-${depth % 6}`}></div>
+        </div>
+        <div className="grow">
+            {children}
+        </div>
     </div>
 }
 
