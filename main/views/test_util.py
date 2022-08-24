@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from main.views.comment import CommentTree
+from .utils import CommentTree
 
 class FakeComment:
     def __init__(self, id, score, parent_id=None):

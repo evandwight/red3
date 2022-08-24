@@ -1,8 +1,8 @@
 import json
-from math import ceil
 import re
 import uuid
 from datetime import datetime, timedelta, timezone
+from math import ceil
 
 from celery.result import AsyncResult
 from django.core.cache import cache
@@ -15,32 +15,22 @@ from django.views.decorators.http import require_http_methods
 from ..models import Comment, Post, Profile, Vote
 from ..tasks import listingCacheKey, loadRedditPostTask, updateRedditComments
 from ..utils import rateLimit, rateLimitByIp
-from .utils import (ALL_LISTING_ORDER_BY, NEW, CommentSerializer,
+from .utils import (ALL_LISTING_ORDER_BY, NEW, CommentSerializer, CommentTree,
                     PostSerializer, ProfileSerializer)
 from .views import getProfileOrDefault
 
-
-def treeifyComments2(comments):
-    hashComments = {x['id']: x for x in comments}
-    depth0 = []
-    for comment in comments:
-        comment['children'] = []
-    for comment in comments:
-        if comment['parent_id']:
-            hashComments[comment['parent_id']]['children'].append(comment)
-        else:
-            depth0.append(comment)
-    return depth0
 
 @require_http_methods(["GET"])
 def commentJson(request, pk):
     post = Post.objects.filter(id=pk).first()
     if not post:
         return HttpResponseNotFound
-    comments = [CommentSerializer(comment).data for comment in Comment.objects.filter(post_id=pk)]
-    comments.sort(key=lambda x: x['reddit_score'] + x['score'], reverse=True)
-    depth0 = treeifyComments2(comments)
-    return JsonResponse({'commentTree':depth0})
+    comments = list(Comment.objects.filter(post_id=pk))
+    commentTree = CommentTree(comments)
+    return JsonResponse({
+        'post': PostSerializer(post).data,
+        'comments': [x.toDict() for x in commentTree.root]})
+
 
 @require_http_methods(["GET"])
 def profileJson(request):
@@ -138,3 +128,4 @@ def loadRedditPost(request, pk):
     
     res = loadRedditPostTask.delay(pk)
     return JsonResponse({'url': reverse('main:viewTask', args=[res.id])})
+

@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
+import ListingApp from './pages/listing/ListingApp';
 import reportWebVitals from './reportWebVitals';
 import './index.css';
+import PostDetailsApp from 'pages/postdetails/PostDetailsApp';
 
 let rootEle = document.getElementById('listing');
 if (rootEle) {
@@ -10,7 +11,18 @@ if (rootEle) {
     
     root.render(
     <React.StrictMode>
-        <App />
+        <ListingApp />
+    </React.StrictMode>
+    );
+}
+
+rootEle = document.getElementById('post-details');
+if (rootEle) {
+    const root = ReactDOM.createRoot(rootEle as HTMLElement);
+    
+    root.render(
+    <React.StrictMode>
+        <PostDetailsApp />
     </React.StrictMode>
     );
 }

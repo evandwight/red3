@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
-import { getCsrfToken, Listing } from './Listing';
+import { getCsrfToken } from 'utils';
+import { Listing } from './Listing';
 
 
 function getSort() {
@@ -11,7 +12,7 @@ function getSort() {
         return "hot";
     }
 }
-function App() {
+function ListingApp() {
     const [posts, setPosts] = useState<any>(null);
     const [votes, setVotes] = useState<any>(null);
     const [profile, setProfile] = useState<any>(null);
@@ -69,4 +70,4 @@ function App() {
     }
 }
 
-export default App;
+export default ListingApp;

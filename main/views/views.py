@@ -15,6 +15,10 @@ from ..utils import conditional_cache
 def listingNew(request, sort):
     return render(request, 'main/post_list.html')
 
+@require_http_methods(["GET"])
+def postDetails(request, postId):
+    return render(request, 'main/post_detail.html')
+
 @conditional_cache(decorator=cache_page(60*5))
 @require_http_methods(["GET"])
 def sortListings(request):

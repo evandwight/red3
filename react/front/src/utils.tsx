@@ -1,0 +1,90 @@
+import axios from 'axios';
+
+export function URL_DETAIL(id) {
+    return `/details/post=${id}/`;
+}
+
+export function URL_SUBMIT_COMMENT(postId, commentId = null) {
+    return `/submitComment/${postId}/${!!commentId ? `${commentId}/` : ""}`;
+}
+
+export function URL_UPVOTE(id) {
+    return `/upvote/${id}/`;
+}
+
+export function URL_DNVOTE(id) {
+    return `/dnvote/${id}/`;
+}
+
+export function URL_LOAD_REDDIT_COMMENTS(id) {
+    return `/api/loadRedditComments/${id}`;
+}
+
+export function vote(thing, isUpVote, updateVote) {
+    updateVote(thing.thing_uuid, isUpVote);
+    let url = isUpVote ? URL_UPVOTE(thing.thing_uuid) : URL_DNVOTE(thing.thing_uuid);
+    axios.post(url, {}, { headers: { 'X-CSRFToken': getCsrfToken() } })
+        .then(result => {
+            if (result.data.reload) {
+                window.location.reload();
+            }
+        }).catch(err => console.error(err))
+
+}
+
+
+export function isValidHttpUrl(string) {
+    let url;
+
+    try {
+        url = new URL(string);
+    } catch (_) {
+        return false;
+    }
+
+    return url.protocol === "http:" || url.protocol === "https:";
+}
+
+export function timeSinceShort(value: Date) {
+    let seconds = Math.floor((new Date().getTime() - new Date(value).getTime()) / 1000);
+    let days = seconds / 86400;
+    if (days > 365) {
+        return `${(days / 365).toFixed(1)}y`;
+    } else if (days >= 1) {
+        return `${days.toFixed(1)}d`;
+    } else {
+        return `${(seconds / 3600).toFixed(1)}h`;
+    }
+}
+
+export function netloc(text) {
+    if (!text) {
+        return 'self';
+    } else {
+        try {
+            let url = new URL(text);
+            return url.hostname;
+        } catch (_) {
+            return 'unknown';
+        }
+    }
+}
+
+export function getCsrfToken() {
+    return (document.querySelector('[name=csrfmiddlewaretoken]') as any)?.value;
+}
+
+export function filterByProfile(thing, profile) {
+    return (!thing.mean || profile.show_mean) 
+    && (!thing.nsfw || profile.show_nsfw)
+}
+
+export function filterReason(thing, profile) {
+    return (thing.mean && !profile.show_mean && "hidden_mean") 
+    || (thing.nsfw && !profile.show_nsfw && "hidden_nsfw")
+    || null;
+}
+
+export function commentTreeToList(nodes) {
+    return nodes.reduce((pv, cv) => pv.concat([cv],commentTreeToList(cv.children)), []);
+}

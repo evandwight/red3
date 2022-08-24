@@ -1,8 +1,8 @@
 from django.urls import path
 from django.views.generic import RedirectView
 from django.views.generic.base import TemplateView
-from .views import views, submit, vote, comment, api
 
+from .views import api, submit, views, vote
 
 app_name = 'main'
 
@@ -11,7 +11,7 @@ urlpatterns = [
     path('', RedirectView.as_view(url='/listing/sort=hot'), name='index'),
     path('listing/sort=<str:sort>', views.listingNew, name='listingSort'),
     path('sortListing', views.sortListings, name='sortListing'),
-    path('<int:pk>/', comment.postDetails, name='detail'),
+    path('details/post=<int:postId>/', views.postDetails, name='detail'),
     path('submitPost/', submit.submitPost, name='submitPost'),
     path('submitComment/<int:postId>/<int:commentId>/', submit.submitComment, name='submitComment'),
     path('submitComment/<int:postId>/', submit.submitComment, name='submitComment'),
@@ -20,6 +20,7 @@ urlpatterns = [
     path('downvote/<str:pk>/', vote.downvote, name='downvote'),
     path('search', views.search, name='search'),
     path('api/listing/sort=<str:sort>', api.postsJson, name="apiPosts"),
+    path('api/details/post=<int:pk>', api.commentJson, name="apiComments"),
     path('api/votes', api.votesJson, name="apiVotes"),
     path('api/profile', api.profileJson, name="apiProfile"),
     path('api/loadRedditComments/<int:pk>', api.loadRedditComments, name='loadRedditComments'),

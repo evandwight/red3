@@ -6,26 +6,6 @@
     color: red;
 }
 
-/* depth*0.50 + 1.5 */
-.comment-depth-0 { width: 1.5rem}
-.comment-depth-1 { width: 2.0rem}
-.comment-depth-2 { width: 2.5rem}
-.comment-depth-3 { width: 3.0rem}
-.comment-depth-4 { width: 3.5rem}
-.comment-depth-5 { width: 4.0rem}
-.comment-depth-6 { width: 4.5rem}
-.comment-depth-7 { width: 5.0rem}
-.comment-depth-8 { width: 5.5rem}
-.comment-depth-9 { width: 6.0rem}
-
-.comment-depth-color-0 { background-color: #DC2626}
-.comment-depth-color-1 { background-color: #2563EB}
-.comment-depth-color-2 { background-color: #16A34A}
-.comment-depth-color-3 { background-color: #F97316}
-.comment-depth-color-4 { background-color: #9333EA}
-.comment-depth-color-5 { background-color: #CA8A04}
-
-
 .w-6 {
     width: 1.5rem;
 }
