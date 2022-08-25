@@ -10,9 +10,8 @@ import { filterByProfile, filterReason, timeSinceShort, URL_SUBMIT_COMMENT } fro
 
 export const COLLAPSE_COMMENT_LIMIT = 50;
 
-export function Comments({ post, nodes, initialCollapse, parentId, profile, initialVotes, setters }) {
+export function Comments({ post, nodes, initialCollapse, overrideCollapse, parentId, profile, initialVotes, setters }) {
     const [maybeShouldCollapse, setMaybeShouldCollapse] = useState(initialCollapse[parentId]);
-    const overrideCollapse = Object.keys(initialCollapse).length === 0;
     const shouldCollapse = maybeShouldCollapse && !overrideCollapse;
     const expandedNodes = shouldCollapse ? nodes.filter(node => node.collapseOrder <= COLLAPSE_COMMENT_LIMIT) : nodes;
     const collapsedNodeCount = nodes.length - expandedNodes.length;
@@ -35,7 +34,7 @@ export function Comments({ post, nodes, initialCollapse, parentId, profile, init
                         </div>}
                 </CommentDepth>
                 {hidden && <div>
-                    <Comments {... { post, nodes: node.children, initialCollapse, parentId: node.id, profile, initialVotes, setters }} />
+                    <Comments {... { post, nodes: node.children, initialCollapse, overrideCollapse, parentId: node.id, profile, initialVotes, setters }} />
                 </div>}
             </div>
         })}

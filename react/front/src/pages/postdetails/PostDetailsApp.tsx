@@ -11,6 +11,7 @@ export default function PostDetailsApp() {
     const [profile, setProfile] = useState<any>(null);
     const [initialCollapse, setInitialCollapse] = useState<any>({});
     const [focusComment, setFocusComment] = useState<any>(window.location.hash.slice(1));
+    const [overrideCollapse, setOverrideCollapse] = useState<any>(false);
     const match = window.location.pathname.match(/^\/details\/post=(\d+).*$/);
     const postId = match ? match[1] : null;
 
@@ -41,16 +42,15 @@ export default function PostDetailsApp() {
         .then((results) => setInitialVotes(results.data));
     },[post, comments]);
     useEffect(() => {
-        console.log({comments, initialCollapse, focusComment})
         if (comments && focusComment) {
             const element = document.getElementById(focusComment);
-            if (element) {
+            if (element) {    
                 element.scrollIntoView();
-            } else if (Object.keys(initialCollapse).length !== 0) {
-                setInitialCollapse({});
+            } else if (!overrideCollapse) {
+                setOverrideCollapse(true);
             }
         }
-    }, [comments, initialCollapse, focusComment]);
+    }, [comments, overrideCollapse, focusComment]);
     useEffect(() => {
         if (post) {
             window.document.title = `Post - ${post.title}`;
@@ -62,11 +62,11 @@ export default function PostDetailsApp() {
             <FullPost {... {post, initialVotes, profile, setters}}/>
             <hr className="border-gray-500"></hr>
             {comments ? 
-                <Comments {... {post, nodes:comments, initialCollapse, parentId: null, initialVotes, profile, setters:setters.current }} />
+                <Comments {... {post, nodes:comments, initialCollapse, overrideCollapse, parentId: null, initialVotes, profile, setters:setters.current }} />
                 : <div> Loading </div>}
         </div>
         : <div>Loading</div>,
-        [post, comments, initialCollapse, initialVotes, profile, setters])
+        [post, comments, initialCollapse, overrideCollapse, initialVotes, profile, setters])
     return ele;
 }
 

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ReactComponent as DownArrow } from 'svg/arrow-down-line.svg';
 import { ReactComponent as UpArrow } from 'svg/arrow-up-line.svg';
 import { getCsrfToken, URL_DNVOTE, URL_UPVOTE } from 'utils';
@@ -17,7 +17,12 @@ export function sendVote(thing, isUpVote, setVote) {
 }
 
 export function VoteButtons({ thing, initialVotes }) {
-    const [vote, setVote] = useState(initialVotes ? initialVotes[thing.thing_uuid] : "");
+    const [vote, setVote] = useState("");
+    useEffect(() => {
+        if (initialVotes) {
+            setVote(initialVotes[thing.thing_uuid])
+        }
+    }, [thing, initialVotes])
     return <>
         <button title="up vote" onClick={() => sendVote(thing, true, setVote)} disabled={!initialVotes}>
             <UpArrow className={`w-6 ${vote === "UP" ? "fill-orange-500" : "fill-fuchsia-500"}`} width={24} height={24} />
