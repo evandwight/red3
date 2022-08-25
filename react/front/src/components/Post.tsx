@@ -1,5 +1,5 @@
 import { IconLink } from "components/IconLink";
-import { DownVote, UpVote } from "components/Vote";
+import { VoteButtons } from "components/Vote";
 import { ReactComponent as DiscussLine } from 'svg/discuss-line.svg';
 import { ReactComponent as LinkSvg } from 'svg/link.svg';
 import { ReactComponent as RedditLine } from 'svg/reddit-line.svg';
@@ -9,7 +9,7 @@ import TextSvg from 'svg/text.svg';
 import { isValidHttpUrl, netloc, timeSinceShort, URL_DETAIL, URL_LOAD_REDDIT_COMMENTS, URL_SUBMIT_COMMENT } from "utils";
 
 
-export function ListPost({ post, votes, setters }) {
+export function ListPost({ post, initialVotes, setters }) {
     return <div>
         <Tags post={post} />
         <div className="flex flex-row flex-wrap justify-start py-1">
@@ -21,7 +21,7 @@ export function ListPost({ post, votes, setters }) {
             </div>
         </div>
         <PostInfo post={post} />
-        <PostButtons {... { post, votes, setters, isFull: false }} />
+        <PostButtons {... { post, initialVotes, setters, isFull: false }} />
     </div>
 }
 
@@ -59,18 +59,17 @@ export function PostInfo({ post }) {
     </div>
 }
 
-export function PostButtons({ post, votes, setters, isFull }) {
+export function PostButtons({ post, initialVotes, setters, isFull }) {
     return <div className="sm:flex sm:flex-row sm:justify-end">
         <div className="flex flex-row justify-around py-1 sm:w-1/2 lg:w-1/3">
-            <UpVote thing={post} votes={votes} updateVote={setters.updateVote} />
-            <DownVote thing={post} votes={votes} updateVote={setters.updateVote} />
+            <VoteButtons thing={post} initialVotes={initialVotes}/>
             <div id={`external-link-${post.id}`}><IconLink link={post.external_link} Img={LinkSvg} title="external link" /></div>
             <div id={`reddit-link-${post.id}`}><IconLink link={post.reddit_link} Img={RedditLine} title="reddit link" /></div>
             {!isFull &&
                 <div><IconLink link={URL_DETAIL(post.id)} Img={DiscussLine} title="view comments" /></div>}
             {!isFull &&
                 <div><IconLink link={URL_SUBMIT_COMMENT(post.id)} Img={ReplyLine} title="submit comment" /> </div>}
-            {!post.is_local &&
+            {isFull && !post.is_local &&
                 <div><IconLink link={URL_LOAD_REDDIT_COMMENTS(post.id)} Img={RefreshLine} title="refresh comments" /></div>}
         </div>
     </div>
@@ -93,7 +92,7 @@ export function UserText({ text }) {
     </>
 }
 
-export function FullPost({ post, votes, setters }) {
+export function FullPost({ post, initialVotes, setters }) {
     return <div className="py-1 sm:py-4">
         <Tags post={post} />
         <MediaElement post={post} />
@@ -109,6 +108,6 @@ export function FullPost({ post, votes, setters }) {
             <UserText text={post.text} />
         </div>}
         <PostInfo post={post} />
-        <PostButtons {... { post, votes, setters, isFull: true }} />
+        <PostButtons {... { post, initialVotes, setters, isFull: true }} />
     </div>
 }

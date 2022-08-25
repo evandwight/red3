@@ -16,7 +16,7 @@ def listingNew(request, sort):
     return render(request, 'main/post_list.html')
 
 @require_http_methods(["GET"])
-def postDetails(request, postId):
+def postDetails(request, pk):
     return render(request, 'main/post_detail.html')
 
 @conditional_cache(decorator=cache_page(60*5))

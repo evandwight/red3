@@ -14,7 +14,7 @@ function getSort() {
 }
 function ListingApp() {
     const [posts, setPosts] = useState<any>(null);
-    const [votes, setVotes] = useState<any>(null);
+    const [initialVotes, setInitialVotes] = useState<any>(null);
     const [profile, setProfile] = useState<any>(null);
     const [page, setPage] = useState<any>(parseInt(new URLSearchParams(window.location.search).get('page') || "1"));
     const [numPages, setNumPages] = useState<number>(0);
@@ -26,12 +26,6 @@ function ListingApp() {
         window.history.pushState({}, '', url);
 
         setPage(newPage)
-    }
-    const updateVote = (thingUUID, isUpVote) => {
-        const votes2 = { ...votes };
-        const oldVote = votes2[thingUUID];
-        votes2[thingUUID] = isUpVote ? (oldVote === "UP" ? "" : "UP") : (oldVote === "DN" ? "" : "DN");
-        setVotes(votes2);
     }
     window.onpopstate = (e) => {
         setPage(parseInt(new URLSearchParams(window.location.search).get('page') || "1"));
@@ -51,17 +45,16 @@ function ListingApp() {
         }
         axios.post('/api/votes', {'list':posts.map(post => post.thing_uuid)},
             {headers: {'X-CSRFToken':getCsrfToken()}})
-        .then((results) => setVotes(results.data));
+        .then((results) => setInitialVotes(results.data));
     },[posts]);
     useEffect(() => {
         wrapperRef?.current?.scrollIntoView();
     }, [page]);
-    const setters = { setVotes, updatePage, updateVote };
+    const setters = { setInitialVotes, updatePage };
     if (posts && profile) {
-        console.log({ votes, page })
         return <>
             <div ref={wrapperRef}></div>
-            <Listing {... { posts, votes, profile, page, numPages, setters }} />
+            <Listing {... { posts, initialVotes, profile, page, numPages, setters }} />
         </>
     } else {
         return <div>

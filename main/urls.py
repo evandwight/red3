@@ -11,7 +11,7 @@ urlpatterns = [
     path('', RedirectView.as_view(url='/listing/sort=hot'), name='index'),
     path('listing/sort=<str:sort>', views.listingNew, name='listingSort'),
     path('sortListing', views.sortListings, name='sortListing'),
-    path('details/post=<int:postId>/', views.postDetails, name='detail'),
+    path('details/post=<int:pk>/', views.postDetails, name='detail'),
     path('submitPost/', submit.submitPost, name='submitPost'),
     path('submitComment/<int:postId>/<int:commentId>/', submit.submitComment, name='submitComment'),
     path('submitComment/<int:postId>/', submit.submitComment, name='submitComment'),

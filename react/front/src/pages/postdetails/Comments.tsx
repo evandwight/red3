@@ -2,16 +2,19 @@
 
 import { IconLink } from 'components/IconLink';
 import { Tags, UserText } from 'components/Post';
-import { DownVote, UpVote } from 'components/Vote';
+import { VoteButtons } from 'components/Vote';
+import { useState } from 'react';
 import { ReactComponent as ReplyLine } from 'svg/reply-line.svg';
 import { filterByProfile, filterReason, timeSinceShort, URL_SUBMIT_COMMENT } from 'utils';
 
 
 export const COLLAPSE_COMMENT_LIMIT = 50;
 
-export function Comments({ post, nodes, collapseInitial, parentId, profile, votes, setters }) {
-    const shouldCollapseInitial = collapseInitial[parentId];
-    const expandedNodes = shouldCollapseInitial ? nodes.filter(node => node.collapseOrder <= COLLAPSE_COMMENT_LIMIT) : nodes;
+export function Comments({ post, nodes, initialCollapse, parentId, profile, initialVotes, setters }) {
+    const [maybeShouldCollapse, setMaybeShouldCollapse] = useState(initialCollapse[parentId]);
+    const overrideCollapse = Object.keys(initialCollapse).length === 0;
+    const shouldCollapse = maybeShouldCollapse && !overrideCollapse;
+    const expandedNodes = shouldCollapse ? nodes.filter(node => node.collapseOrder <= COLLAPSE_COMMENT_LIMIT) : nodes;
     const collapsedNodeCount = nodes.length - expandedNodes.length;
     return <div>
         {expandedNodes.map((node, i) => {
@@ -24,7 +27,7 @@ export function Comments({ post, nodes, collapseInitial, parentId, profile, vote
                         ? <div>
                             <div><UserText text={comment.text} /></div>
                             <CommentInfo comment={comment} />
-                            <CommentButtons {...{ post, comment, votes, setters }} />
+                            <CommentButtons {...{ post, comment, initialVotes, setters }} />
                             <CommentNavigation {... { node, setters }} />
                         </div>
                         : <div>
@@ -32,12 +35,12 @@ export function Comments({ post, nodes, collapseInitial, parentId, profile, vote
                         </div>}
                 </CommentDepth>
                 {hidden && <div>
-                    <Comments {... { post, nodes: node.children, collapseInitial, parentId: node.id, profile, votes, setters }} />
+                    <Comments {... { post, nodes: node.children, initialCollapse, parentId: node.id, profile, initialVotes, setters }} />
                 </div>}
             </div>
         })}
-        {shouldCollapseInitial && collapsedNodeCount > 0 && <CommentDepth depth={nodes[0].depth}>
-            <button onClick={() => setters.updateCollapseInitial(parentId)}>
+        {shouldCollapse && collapsedNodeCount > 0 && <CommentDepth depth={nodes[0].depth}>
+            <button onClick={() => setMaybeShouldCollapse(false)}>
                 {collapsedNodeCount} more replies
             </button>
         </CommentDepth>}
@@ -62,11 +65,10 @@ export function CommentInfo({ comment }) {
     </div>
 }
 
-export function CommentButtons({ post, comment, votes, setters }) {
+export function CommentButtons({ post, comment, initialVotes, setters }) {
     return <div className="sm:flex sm:flex-row sm:justify-end">
         <div className="flex flex-row justify-around py-1 sm:w-1/2 lg:w-1/3">
-            <UpVote thing={comment} votes={votes} updateVote={setters.updateVote} />
-            <DownVote thing={comment} votes={votes} updateVote={setters.updateVote} />
+            <VoteButtons thing={comment} initialVotes={initialVotes}/>
             <div><IconLink link={URL_SUBMIT_COMMENT(post.id, comment.id)} Img={ReplyLine} title="submit comment" /></div>
         </div>
     </div>

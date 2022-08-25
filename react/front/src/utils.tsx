@@ -13,25 +13,12 @@ export function URL_UPVOTE(id) {
 }
 
 export function URL_DNVOTE(id) {
-    return `/dnvote/${id}/`;
+    return `/downvote/${id}/`;
 }
 
 export function URL_LOAD_REDDIT_COMMENTS(id) {
     return `/api/loadRedditComments/${id}`;
 }
-
-export function vote(thing, isUpVote, updateVote) {
-    updateVote(thing.thing_uuid, isUpVote);
-    let url = isUpVote ? URL_UPVOTE(thing.thing_uuid) : URL_DNVOTE(thing.thing_uuid);
-    axios.post(url, {}, { headers: { 'X-CSRFToken': getCsrfToken() } })
-        .then(result => {
-            if (result.data.reload) {
-                window.location.reload();
-            }
-        }).catch(err => console.error(err))
-
-}
-
 
 export function isValidHttpUrl(string) {
     let url;
