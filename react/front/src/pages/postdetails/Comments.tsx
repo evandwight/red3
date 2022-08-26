@@ -26,7 +26,7 @@ export function Comments({ post, nodes, initialCollapse, overrideCollapse, paren
                         ? <div>
                             <div><UserText text={comment.text} /></div>
                             <CommentInfo comment={comment} />
-                            <CommentButtons {...{ post, comment, initialVotes, setters }} />
+                            <CommentButtons {...{ post, comment, initialVotes }} />
                             <CommentNavigation {... { node, setters }} />
                         </div>
                         : <div>
@@ -64,7 +64,7 @@ export function CommentInfo({ comment }) {
     </div>
 }
 
-export function CommentButtons({ post, comment, initialVotes, setters }) {
+export function CommentButtons({ post, comment, initialVotes }) {
     return <div className="sm:flex sm:flex-row sm:justify-end">
         <div className="flex flex-row justify-around py-1 sm:w-1/2 lg:w-1/3">
             <VoteButtons thing={comment} initialVotes={initialVotes}/>

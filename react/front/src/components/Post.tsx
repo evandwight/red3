@@ -59,7 +59,7 @@ export function PostInfo({ post }) {
     </div>
 }
 
-export function PostButtons({ post, initialVotes, setters, isFull }) {
+export function PostButtons({ post, initialVotes, isFull }) {
     return <div className="sm:flex sm:flex-row sm:justify-end">
         <div className="flex flex-row justify-around py-1 sm:w-1/2 lg:w-1/3">
             <VoteButtons thing={post} initialVotes={initialVotes}/>
@@ -67,7 +67,7 @@ export function PostButtons({ post, initialVotes, setters, isFull }) {
             <div id={`reddit-link-${post.id}`}><IconLink link={post.reddit_link} Img={RedditLine} title="reddit link" /></div>
             {!isFull &&
                 <div><IconLink link={URL_DETAIL(post.id)} Img={DiscussLine} title="view comments" /></div>}
-            {!isFull &&
+            {isFull &&
                 <div><IconLink link={URL_SUBMIT_COMMENT(post.id)} Img={ReplyLine} title="submit comment" /> </div>}
             {isFull && !post.is_local &&
                 <div><IconLink link={URL_LOAD_REDDIT_COMMENTS(post.id)} Img={RefreshLine} title="refresh comments" /></div>}
@@ -92,7 +92,7 @@ export function UserText({ text }) {
     </>
 }
 
-export function FullPost({ post, initialVotes, setters }) {
+export function FullPost({ post, initialVotes }) {
     return <div className="py-1 sm:py-4">
         <Tags post={post} />
         <MediaElement post={post} />
@@ -108,6 +108,6 @@ export function FullPost({ post, initialVotes, setters }) {
             <UserText text={post.text} />
         </div>}
         <PostInfo post={post} />
-        <PostButtons {... { post, initialVotes, setters, isFull: true }} />
+        <PostButtons {... { post, initialVotes, isFull: true }} />
     </div>
 }

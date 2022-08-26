@@ -19,7 +19,7 @@ export default function PostDetailsApp() {
         const url = new URL(window.location as any);
         const hash = `comment-${newCommentId}`;
         url.hash = hash;
-        window.history.pushState({}, '', url);
+        window.history.replaceState({}, '', url);
         setFocusComment(hash);
     }
     useEffect(() => { axios('/api/profile').then(result => setProfile(result.data))}, []);
