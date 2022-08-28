@@ -75,9 +75,8 @@ export function SeparateAudioVideoHandler({ videoUrl, audioUrl, onLoadingComplet
             let mediaSource = new MediaSource();
 
             const generator = loadVideoSegments(videoUrl);
-
+            const firstSegmentResult = await generator.next();
             mediaSource.addEventListener('sourceopen', async () => {
-                const firstSegmentResult = await generator.next();
                 if (firstSegmentResult.done) {
                     throw new Error("no first segment");
                 }
@@ -121,46 +120,3 @@ export function SeparateAudioVideoHandler({ videoUrl, audioUrl, onLoadingComplet
         onLoadStart={onLoadingComplete}>
     </video>
 }
-
-
-
-
-
-
-
-
-// const videoData = await loadVideoUrl(videoUrl);
-// if (videoData.error) {
-//     console.error(videoData.error);
-//     return;
-// }
-// if (!videoData.arrayBuffer) {
-//     return;
-// }
-// const NUM_CHUNKS = 20;
-// const segments: any[] = [];
-// for (let i = 0; i < NUM_CHUNKS; ++i) {
-//     const chunkSize = Math.ceil(videoData.arrayBuffer?.byteLength / NUM_CHUNKS);
-//     const startByte = chunkSize * i;
-//     const chunk = videoData.arrayBuffer.slice(startByte, startByte + chunkSize);
-//     segments.push(chunk);
-// }
-// console.log({segments});
-// mediaSource.addEventListener('sourceopen', () => {
-//     console.log(segments[0]);
-//     const mimeCodec = getMimeType(new Uint8Array(segments[0]));
-//     console.log({mimeCodec});
-//     const sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
-//     const addBuffer = async () => {
-//         if (segments.length === 0) {
-//             console.log('done done')
-//             mediaSource.endOfStream();
-//             video.current?.play();
-//         } else {
-//             console.log('append buffer')
-//             sourceBuffer.appendBuffer(segments.shift());
-//         }
-//     }
-//     sourceBuffer.addEventListener('updateend', addBuffer);
-//     addBuffer();
-// });
