@@ -1,4 +1,3 @@
-import axios from 'axios';
 
 export function URL_DETAIL(id) {
     return `/details/post=${id}/`;

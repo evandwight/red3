@@ -24,13 +24,12 @@ export default function PostDetailsApp() {
     }
     useEffect(() => { axios('/api/profile').then(result => setProfile(result.data))}, []);
     useEffect(() => {
-        axios(`/api/details/post=${postId}`)
-            .then(result => {
-                setPost(result.data.post);
-                const hash = window.location.hash;
-                setInitialCollapse(!hash ? computeInitialCollapse(result.data.comments, null): {});
-                setComments(result.data.comments);
-            });
+        axios(`/api/details/post=${postId}`).then(result => setPost(result.data.post));
+        axios(`/api/comments/post=${postId}`).then(result => {
+            const hash = window.location.hash;
+            setInitialCollapse(!hash ? computeInitialCollapse(result.data.comments, null): {});
+            setComments(result.data.comments);
+        });
     }, [postId]);
     useEffect(() => {
         if (!post || !comments) {

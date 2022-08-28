@@ -4,11 +4,13 @@ import { useEffect, useRef, useState } from "react";
 
 
 export default function VideoHandler({ videoInfo, audio, onLoadingComplete }) {
-    if (!videoInfo?.hasAudio && !!audio) {
+    if (!videoInfo?.hasAudio && !!audio && ('MediaSource' in window)) {
+        console.log('separate audio')
         return <SeparateAudioVideoHandler videoUrl={videoInfo.url} audioUrl={audio} onLoadingComplete={onLoadingComplete} />
     } else {
-        return <video className="max-h-screen"
-            controls={true} autoPlay={false} muted loop preload="auto" playsInline draggable={false}
+        console.log('all in one')
+        return <video className="max-h-full max-w-full"
+            controls autoPlay muted loop preload="auto" playsInline draggable={false}
             onLoadStart={onLoadingComplete}>
             <source data-src={videoInfo.url} src={videoInfo.url} type="video/mp4" />
         </video>
@@ -69,10 +71,6 @@ export function SeparateAudioVideoHandler({ videoUrl, audioUrl, onLoadingComplet
     },[play])
     useEffect(() => {
         async function loadVideo() {
-            if (!('MediaSource' in window)) {
-                console.error("MediaSource unsupported");
-                return;
-            }
             if (video.current === null) {
                 console.error('videoRef not set');
                 return;
@@ -124,9 +122,9 @@ export function SeparateAudioVideoHandler({ videoUrl, audioUrl, onLoadingComplet
             URL.revokeObjectURL(url);
         }
         loadVideo();
-    }, [audioUrl, videoUrl]);
+    }, [audioUrl, videoUrl, onLoadingComplete]);
 
-    return <video className={`max-h-screen ${play ? "" : "hidden"}`}
+    return <video className={`max-h-full max-w-full ${play ? "" : "invisible"}`}
         ref={video} controls autoPlay={false} muted loop preload="auto" playsInline draggable={false}>
     </video>
 }

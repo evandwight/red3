@@ -21,15 +21,20 @@ from .views import getProfileOrDefault
 
 
 @require_http_methods(["GET"])
-def commentJson(request, pk):
+def postJson(request, pk):
+    post = Post.objects.filter(id=pk).first()
+    if not post:
+        return HttpResponseNotFound
+    return JsonResponse({'post': PostSerializer(post).data,})
+
+@require_http_methods(["GET"])
+def commentsJson(request, pk):
     post = Post.objects.filter(id=pk).first()
     if not post:
         return HttpResponseNotFound
     comments = list(Comment.objects.filter(post_id=pk))
     commentTree = CommentTree(comments)
-    return JsonResponse({
-        'post': PostSerializer(post).data,
-        'comments': [x.toDict() for x in commentTree.root]})
+    return JsonResponse({'comments': [x.toDict() for x in commentTree.root]})
 
 
 @require_http_methods(["GET"])

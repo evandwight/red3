@@ -10,6 +10,7 @@ const Gallery = ({
   postMode,
   mediaRef,
   uniformHeight = false,
+  onLoadingComplete,
 }) => {
   const [loaded, setLoaded] = useState(false);
   const [index, setIndex] = useState(0);
@@ -45,7 +46,11 @@ const Gallery = ({
       previous(e);
     }
   };
-
+  useEffect(() => {
+    if (loaded) {
+        onLoadingComplete();
+    }
+  }, [loaded, onLoadingComplete])
   useEffect(() => {
     if (images.length > 0) {
       if (maxheight > 0) {
@@ -230,7 +235,7 @@ const Gallery = ({
         {sliderControl(false)}
       </div>
     );
-  } else return <div>loading gallery</div>;
+  } else return <></>;
 };
 
 export default Gallery;

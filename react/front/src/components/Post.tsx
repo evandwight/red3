@@ -85,7 +85,7 @@ export function UserText({ text }) {
 export function FullPost({ post, initialVotes }) {
     return <div className="py-1 sm:py-4">
         <Tags post={post} />
-        <ContentDiv redditUrl={post.reddit_link}/>
+        {post.external_link && post.reddit_link && <ContentDiv redditUrl={post.reddit_link}/>}
         <div className="flex flex-row flex-wrap justify-start py-1">
             <Thumbnail post={post} />
             <div className="grow basis-1/2 sm:basis-4/5">

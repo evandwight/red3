@@ -1,8 +1,7 @@
 import { useWindowSize } from "@react-hook/window-size";
 import Gallery from "components/MediaElement/components/Gallery";
-import React from "react";
-import { useEffect, useRef, useState } from "react";
-import { BsBoxArrowInUpRight } from "react-icons/bs";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { ReactComponent as LinkSvg } from 'svg/link.svg';
 import { findMediaInfo } from "../lib/utils";
 import { IFrameImage, IFrameTweet, ImageWrapper } from './ImageWrapper';
 // VideoHandler is large (uses mux.js) reduce initial bundle size by lazy loading
@@ -15,8 +14,8 @@ async function fileExists(url) {
 
 const Media = ({
     post,
-    postMode = true,
     setShowSpinner,
+    containerSize,
 }) => {
     const [windowWidth, windowHeight] = useWindowSize();
     const mediaRef = useRef<HTMLDivElement>(null);
@@ -33,16 +32,14 @@ const Media = ({
         hasAudio: false,
     });
     const [videoAudio, setvideoAudio] = useState("");
-    const [mediaLoaded, setMediaLoaded] = useState(false);
     const [loaded, setLoaded] = useState(false);
 
-    const onLoaded = () => {
-        setMediaLoaded(true);
+    const onLoaded = useCallback(() => {
         setShowSpinner(false);
-    };
+    }, [setShowSpinner]);
 
     const [isIFrame, setIsIFrame] = useState(false);
-    const [iFrame, setIFrame] = useState<Element|null>();
+    const [iFrame, setIFrame] = useState<Element | null>();
 
     useEffect(() => {
         //
@@ -191,58 +188,44 @@ const Media = ({
             setIsTweet(false);
             setImageInfo({ url: "", height: 0, width: 0 });
             setVideoInfo({ url: "", height: 0, width: 0, hasAudio: false });
-            setMediaLoaded(false);
             setLoaded(false);
         };
-    }, [post]);
+    }, [post, windowWidth]);
 
-    useEffect(()=>{
-        if (isIFrame) {
+    useEffect(() => {
+        if (loaded && 
+            ((isIFrame && !isTweet) || (!isImage && !isTweet && !isMP4 && !isIFrame && !isGallery))) {
             setShowSpinner(false);
         }
-        if (!post?.mediaInfo?.isLink && !isImage && !isMP4 && !isIFrame && !isGallery) {
-            setShowSpinner(false);
-        }
-    },[post, isImage, isMP4, isIFrame, isGallery, setShowSpinner]);
+    }, [loaded, isImage, isMP4, isIFrame, isTweet, isGallery, setShowSpinner]);
 
     let child;
     if (!loaded) {
         child = <></>
-    } else if (!post?.mediaInfo?.isLink && !isImage && !isMP4 && !isIFrame && !isGallery) {
-        child = <div>
-            <a aria-label="external link"
-                onClick={(e) => e.stopPropagation()}
-                className="flex items-center flex-grow gap-1 px-2 py-2 mt-auto text-xs bg-opacity-50 bg-black/80 text-th-link hover:text-th-linkHover "
-                target={"_blank"}
-                rel="noreferrer"
-                href={post?.url}>
-                <span className="opacity-100 ">{post?.url?.split("?")?.[0]}</span>
-                <BsBoxArrowInUpRight className="flex-none w-6 h-6 ml-auto text-white group-hover:scale-110 " />
-            </a>
-        </div>
     } else if (isImage && !isIFrame && !isMP4) {
-        child = <ImageWrapper {...{post, mediaLoaded, imageInfo, onLoadingComplete: onLoaded}} />
+        child = <ImageWrapper {...{ post, imageInfo, onLoadingComplete: onLoaded, containerSize }} />
     } else if (isGallery) {
         child = <Gallery
-          images={galleryInfo}
-          maxheight={windowHeight*0.75}
-          postMode={true}
-          mediaRef={mediaRef}
-          uniformHeight={false}
+            images={galleryInfo}
+            maxheight={containerSize.height}
+            postMode={true}
+            mediaRef={mediaRef}
+            uniformHeight={false}
+            onLoadingComplete={onLoaded}
         />
     } else if (isTweet) {
-        child = <IFrameTweet post={post}/>
+        child = <IFrameTweet post={post} onLoadingComplete={onLoaded} />
     } else if (isIFrame && !isTweet) {
-        child = <IFrameImage iFrame={iFrame} imgHeight={windowHeight*0.75}/>
+        child = <IFrameImage iFrame={iFrame} />
     } else if (isMP4 && !isIFrame) {
-        child = <div className="flex flex-col items-center flex-none ">
-            <VideoHandler videoInfo={videoInfo} audio={videoAudio} onLoadingComplete={onLoaded}/>
-        </div>
+        child = <VideoHandler videoInfo={videoInfo} audio={videoAudio} onLoadingComplete={onLoaded} />
     } else {
-        child = <div>Unknown media</div>
+        child = <a title="external link" href={post.external_link}>
+            <LinkSvg className="max-h-full max-w-full fill-gray-500 mx-auto" title="external link" />
+        </a>;
     }
 
-    return <div className="block select-none group" ref={mediaRef}>
+    return <div className="flex justify-center items-center w-full h-full" ref={mediaRef}>
         {child}
     </div>
 };
