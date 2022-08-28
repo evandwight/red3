@@ -4,7 +4,7 @@ import ListingApp from './pages/listing/ListingApp';
 import reportWebVitals from './reportWebVitals';
 import './index.css';
 import PostDetailsApp from 'pages/postdetails/PostDetailsApp';
-// import { ContentDiv } from 'components/MediaElement/components/ContentDiv';
+import { ContentDiv } from 'components/MediaElement/components/ContentDiv';
 
 let rootEle = document.getElementById('listing');
 if (rootEle) {
@@ -33,7 +33,6 @@ if (rootEle) {
 //     const root = ReactDOM.createRoot(rootEle as HTMLElement);
 
 //     root.render(
-//         <React.StrictMode>
 //             <div className="max-w-full max-h-screen">
 //                 {/* reddit image */}
 //                 {/* <ContentDiv redditUrl="https://www.reddit.com/r/WhitePeopleTwitter/comments/wyf1cw/what_goes_around_comes_around/" /> */}
@@ -51,12 +50,13 @@ if (rootEle) {
 //                 {/* <ContentDiv redditUrl="https://reddit.com/r/aww/comments/wy621c/imagine_being_this_soft/"/> */}
 //                 {/* reddit video - bad codec -- Codec: H264 - MPEG-4 AVC (part 10) (avc1) */}
 //                 {/* <ContentDiv redditUrl="https://reddit.com/r/nextfuckinglevel/comments/wydhwn/blind_runner_with_guide_winning_the_race/"/> */}
+//                 {/* reddit video - bad codec and big */}
+//                 <ContentDiv redditUrl="https://reddit.com/r/PublicFreakout/comments/wz4qb3/man_was_just_resting_in_his_car_after_a_long/"/>
 //                 {/* iframe giphy */}
 //                 {/* <ContentDiv redditUrl="https://reddit.com/r/instant_regret/comments/wynt6a/lets_pop_this_wasps_nest_like_an_egg/"/> */}
 //                 {/* Gallery */}
-//                 <ContentDiv redditUrl="https://www.reddit.com/r/antiwork/comments/wz569s/im_an_independent_contractor_this_company_wants/"/>
+//                 {/* <ContentDiv redditUrl="https://www.reddit.com/r/antiwork/comments/wz569s/im_an_independent_contractor_this_company_wants/"/> */}
 //             </div>
-//         </React.StrictMode>
 //     );
 // }
 
