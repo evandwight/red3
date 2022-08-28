@@ -1,4 +1,5 @@
 import { IconLink } from "components/IconLink";
+import { ContentDiv } from "components/MediaElement/components/ContentDiv";
 import { VoteButtons } from "components/Vote";
 import { ReactComponent as DiscussLine } from 'svg/discuss-line.svg';
 import { ReactComponent as LinkSvg } from 'svg/link.svg';
@@ -75,17 +76,6 @@ export function PostButtons({ post, initialVotes, isFull }) {
     </div>
 }
 
-export function MediaElement({ post }) {
-    const regex = /^https?:\/\/.+\.(jpg|jpeg|png|webp|avif|svg)$/
-    if (regex.test(post.external_link)) {
-        return <div className="w-full border-dashed border-gray-600 border-2 text-center">
-            <img alt="" className="max-w-full max-h-screen mx-auto" src={post.external_link} />
-        </div>
-    }  else {
-        return <></>;
-    }
-}
-
 export function UserText({ text }) {
     return <>
         {text.split('\n\n').map((t, i) => <p key={i}>{t}</p>)}
@@ -95,7 +85,7 @@ export function UserText({ text }) {
 export function FullPost({ post, initialVotes }) {
     return <div className="py-1 sm:py-4">
         <Tags post={post} />
-        <MediaElement post={post} />
+        <ContentDiv redditUrl={post.reddit_link}/>
         <div className="flex flex-row flex-wrap justify-start py-1">
             <Thumbnail post={post} />
             <div className="grow basis-1/2 sm:basis-4/5">
