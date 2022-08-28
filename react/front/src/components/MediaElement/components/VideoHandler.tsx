@@ -1,5 +1,5 @@
 import muxjs from 'mux.js';
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 
 
@@ -61,6 +61,12 @@ async function loadVideoUrl(url) {
 
 export function SeparateAudioVideoHandler({ videoUrl, audioUrl, onLoadingComplete }) {
     const video = useRef<HTMLVideoElement>(null);
+    const [play, setPlay] = useState(false);
+    useEffect(() => {
+        if (play) {
+            video.current?.play();
+        }
+    },[play])
     useEffect(() => {
         async function loadVideo() {
             if (!('MediaSource' in window)) {
@@ -76,6 +82,7 @@ export function SeparateAudioVideoHandler({ videoUrl, audioUrl, onLoadingComplet
 
             const generator = loadVideoSegments(videoUrl);
             const firstSegmentResult = await generator.next();
+            let first = true;
             mediaSource.addEventListener('sourceopen', async () => {
                 if (firstSegmentResult.done) {
                     throw new Error("no first segment");
@@ -86,14 +93,17 @@ export function SeparateAudioVideoHandler({ videoUrl, audioUrl, onLoadingComplet
                     const result = await generator.next();
                     if (result.done) {
                         mediaSource.endOfStream();
-                        video.current?.play();
                     } else {
                         sourceBuffer.appendBuffer(result.value.buffer);
+                    }
+                    if (first) {
+                        first = false;
+                        onLoadingComplete();
+                        setPlay(true);
                     }
                 }
                 sourceBuffer.addEventListener('updateend', addBuffer);
                 sourceBuffer.appendBuffer(firstSegmentResult.value.buffer);
-                video.current?.play();
             });
 
             const audioData = await loadVideoUrl(audioUrl);
@@ -115,8 +125,8 @@ export function SeparateAudioVideoHandler({ videoUrl, audioUrl, onLoadingComplet
         }
         loadVideo();
     }, [audioUrl, videoUrl]);
-    return <video className="max-h-screen"
-        ref={video} controls={true} autoPlay={false} muted loop preload="auto" playsInline draggable={false}
-        onLoadStart={onLoadingComplete}>
+
+    return <video className={`max-h-screen ${play ? "" : "hidden"}`}
+        ref={video} controls autoPlay={false} muted loop preload="auto" playsInline draggable={false}>
     </video>
 }
