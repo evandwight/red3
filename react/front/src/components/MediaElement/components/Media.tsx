@@ -64,17 +64,17 @@ const Media = ({
                 let m = await findMediaInfo(post, false, DOMAIN);
                 post["mediaInfo"] = m;
             }
-            let a, b, c;
+            let b;
             if (post["mediaInfo"].isVideo && !post?.selftext_html) {
-                b = await findVideo();
+                await findVideo();
             }
             if (post["mediaInfo"].isIframe) {
-                c = await findIframe();
+                await findIframe();
             }
             if (!b && !post?.selftext_html) {
-                a = await findImage();
+                await findImage();
             }
-            a || b || c || post?.selftext_html ? setLoaded(true) : setLoaded(false);
+            setLoaded(true);
         };
 
         const checkURL = (url) => {
@@ -104,10 +104,19 @@ const Media = ({
             let optimize = "720";
             let url = "";
 
+            if (containerSize.height < 480) {
+                optimize = "360";
+            } else if (containerSize.height < 720) {
+                optimize = "480";
+            }
+
             if (post?.mediaInfo?.videoInfo) {
                 url = post.mediaInfo.videoInfo.url;
                 if (url.includes("DASH_1080")) {
                     url = url.replace("DASH_1080", `DASH_${optimize}`);
+                }
+                if (url.includes("DASH_720")) {
+                    url = url.replace("DASH_720", `DASH_${optimize}`);
                 }
                 setVideoInfo({
                     url: url,
@@ -190,10 +199,10 @@ const Media = ({
             setVideoInfo({ url: "", height: 0, width: 0, hasAudio: false });
             setLoaded(false);
         };
-    }, [post, windowWidth]);
+    }, [post, windowWidth, containerSize.height]);
 
     useEffect(() => {
-        if (loaded && 
+        if (loaded &&
             ((isIFrame && !isTweet) || (!isImage && !isTweet && !isMP4 && !isIFrame && !isGallery))) {
             setShowSpinner(false);
         }
@@ -221,10 +230,9 @@ const Media = ({
         child = <VideoHandler videoInfo={videoInfo} audio={videoAudio} onLoadingComplete={onLoaded} />
     } else {
         child = <a title="external link" href={post.external_link}>
-            <LinkSvg className="max-h-full max-w-full fill-gray-500 mx-auto" title="external link" />
+            <LinkSvg className="max-h-full max-w-full fill-gray-800 mx-auto" transform="scale(3)" title="external link" />
         </a>;
     }
-
     return <div className="flex justify-center items-center w-full h-full" ref={mediaRef}>
         {child}
     </div>
