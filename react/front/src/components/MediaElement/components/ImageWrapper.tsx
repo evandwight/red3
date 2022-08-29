@@ -13,9 +13,9 @@ export function ImageWrapper({ post, imageInfo, onLoadingComplete }) {
 }
 
 export function IFrameTweet({ post, onLoadingComplete }) {
-    return <div className={`bg-transparent ${scrollStyle}`}>
+    return <div className={`relative overflow-hidden bg-transparent ${scrollStyle}`}>
         <TwitterTweetEmbed
-            options={{ theme: "dark", align: "center"}}
+            options={{ theme: "dark", align: "center" }}
             tweetId={post.url.split("/")[post.url.split("/").length - 1].split("?")[0]}
             onLoad={onLoadingComplete}
         />
@@ -23,5 +23,5 @@ export function IFrameTweet({ post, onLoadingComplete }) {
 }
 
 export function IFrameImage({ iFrame }) {
-    return <div className="h-full" dangerouslySetInnerHTML={{ __html: iFrame.outerHTML }}></div>
+    return <div className="relative w-full h-full" dangerouslySetInnerHTML={{ __html: iFrame.outerHTML }} />
 }

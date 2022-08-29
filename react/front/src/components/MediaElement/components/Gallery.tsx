@@ -1,8 +1,6 @@
 import { Transition } from "@headlessui/react";
-import React from "react";
-import { useState, useEffect, createRef } from "react";
-import { AiOutlineRight, AiOutlineLeft } from "react-icons/ai";
-import { isContext } from "vm";
+import { useEffect, useState } from "react";
+import { AiOutlineLeft, AiOutlineRight } from "react-icons/ai";
 
 const Gallery = ({
   images,
