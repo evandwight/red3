@@ -50,7 +50,7 @@ export function Comments({ post, nodes, initialCollapse, overrideCollapse, paren
 export function CommentDepth({ depth, children }) {
     return <div data-depth={depth} className="flex flex-row py-1 sm:py-4">
         {depth > 0 && <div className={`flex flex-none justify-end px-2 comment-depth-${Math.min(depth - 1, 9)}`}>
-            <div className={`w-1 h-full py-2 rounded-sm self-center comment-depth-color-${depth - 1 % 6}`}/>
+            <div className={`w-1 h-full py-2 rounded-sm self-center comment-depth-color-${(depth - 1) % 6}`}/>
         </div>}
         <div className="grow px-2">
             {children}
