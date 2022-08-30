@@ -1,13 +1,14 @@
 import { IconLink } from "components/IconLink";
 import { ContentDiv } from "components/MediaElement/components/ContentDiv";
 import { VoteButtons } from "components/Vote";
+import { useCallback, useState } from "react";
 import { ReactComponent as DiscussLine } from 'svg/discuss-line.svg';
 import { ReactComponent as LinkSvg } from 'svg/link.svg';
 import { ReactComponent as RedditLine } from 'svg/reddit-line.svg';
 import { ReactComponent as RefreshLine } from 'svg/refresh-line.svg';
 import { ReactComponent as ReplyLine } from 'svg/reply-line.svg';
 import TextSvg from 'svg/text.svg';
-import { isValidHttpUrl, netloc, timeSinceShort, URL_DETAIL, URL_LOAD_REDDIT_COMMENTS, URL_SUBMIT_COMMENT } from "utils";
+import { createAndPollTask, isValidHttpUrl, netloc, timeSinceShort, URL_DETAIL, URL_LOAD_REDDIT_COMMENTS, URL_SUBMIT_COMMENT } from "utils";
 
 
 export function ListPost({ post, initialVotes, setters }) {
@@ -60,7 +61,12 @@ export function PostInfo({ post }) {
     </div>
 }
 
+
 export function PostButtons({ post, initialVotes, isFull }) {
+    const [taskState, setTaskState] = useState("");
+    const refreshComments = useCallback(() => 
+        createAndPollTask(URL_LOAD_REDDIT_COMMENTS(post.id), setTaskState), [post.id]);
+
     return <div className="sm:flex sm:flex-row sm:justify-end">
         <div className="flex flex-row justify-around py-1 sm:w-1/2 lg:w-1/3">
             <VoteButtons thing={post} initialVotes={initialVotes}/>
@@ -71,7 +77,14 @@ export function PostButtons({ post, initialVotes, isFull }) {
             {isFull &&
                 <div><IconLink link={URL_SUBMIT_COMMENT(post.id)} Img={ReplyLine} title="submit comment" /> </div>}
             {isFull && !post.is_local &&
-                <div><IconLink link={URL_LOAD_REDDIT_COMMENTS(post.id)} Img={RefreshLine} title="refresh comments" /></div>}
+                <div>
+                    <button onClick={refreshComments} title="refresh comments">
+                        <RefreshLine className={"w-6 "
+                            + (taskState === 'error' ? "fill-red-600" : "fill-fuchsia-500")
+                            + (taskState === 'loading' ? " rotate-infinite" : "")} 
+                            width={24} height={24}/>
+                    </button>
+                </div>}
         </div>
     </div>
 }

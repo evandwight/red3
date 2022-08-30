@@ -1,3 +1,4 @@
+import axios from "axios";
 
 export function URL_DETAIL(id) {
     return `/details/post=${id}/`;
@@ -73,4 +74,27 @@ export function filterReason(thing, profile) {
 
 export function commentTreeToList(nodes) {
     return nodes.reduce((pv, cv) => pv.concat([cv],commentTreeToList(cv.children)), []);
+}
+
+
+export async function createAndPollTask(url, setTaskState) {
+    try {
+        setTaskState("loading");
+        const {data} = await axios.post(url, {}, { headers: { 'X-CSRFToken': getCsrfToken() } })
+        for(var i = 1; i < 100; i++) {
+            var taskData = (await axios(data.url)).data;
+            var {status, result} = taskData;
+            if (status === "SUCCESS") {
+                window.location.pathname = result;
+                return;
+            } else if (status !== "PENDING" && status !== "STARTED") {
+                throw new Error(`task failed - ${status}`);
+            }
+            await new Promise(r => setTimeout(r, 500));
+        }
+        throw new Error("timeout polling task");
+    } catch (error) {
+        console.error(error)
+        setTaskState("error");
+    }
 }
