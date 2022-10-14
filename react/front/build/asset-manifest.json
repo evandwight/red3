@@ -1,0 +1,29 @@
+{
+  "files": {
+    "main.css": "/static/css/main.cac77111.css",
+    "main.js": "/static/js/main.bbe4b1a7.js",
+    "static/js/727.1006f9fb.chunk.js": "/static/js/727.1006f9fb.chunk.js",
+    "static/js/787.71df535f.chunk.js": "/static/js/787.71df535f.chunk.js",
+    "static/js/786.586572d9.chunk.js": "/static/js/786.586572d9.chunk.js",
+    "static/media/reddit-line.svg": "/static/media/reddit-line.9117cf78bf1dfda1a9ea33d22b06840e.svg",
+    "index.html": "/index.html",
+    "static/media/link.svg": "/static/media/link.0772f483df824f98c8bf2060f24dd7f9.svg",
+    "static/media/refresh-line.svg": "/static/media/refresh-line.d9983ce83aff2dd3da55cc66372d6ff5.svg",
+    "static/media/reply-line.svg": "/static/media/reply-line.75dcd21b009b925d92da8a7647c04f02.svg",
+    "static/media/discuss-line.svg": "/static/media/discuss-line.2b48d372293a83ed078adf71530c965c.svg",
+    "static/media/arrow-down-line.svg": "/static/media/arrow-down-line.447f24c432a7cd65ed6e20ece9e2c2fb.svg",
+    "static/media/arrow-up-line.svg": "/static/media/arrow-up-line.9e1f6e0b540b4ac9bc35ec885cdd8940.svg",
+    "static/media/arrow-right-line.svg": "/static/media/arrow-right-line.0b2d65eb87d5a5af190ccad8168b7b5a.svg",
+    "static/media/arrow-left-line.svg": "/static/media/arrow-left-line.3e1adcb15860a5d1e25913abc4cb60d1.svg",
+    "static/media/text.svg": "/static/media/text.3a15effe93b62d5ae527aa75fecb24de.svg",
+    "main.cac77111.css.map": "/static/css/main.cac77111.css.map",
+    "main.bbe4b1a7.js.map": "/static/js/main.bbe4b1a7.js.map",
+    "727.1006f9fb.chunk.js.map": "/static/js/727.1006f9fb.chunk.js.map",
+    "787.71df535f.chunk.js.map": "/static/js/787.71df535f.chunk.js.map",
+    "786.586572d9.chunk.js.map": "/static/js/786.586572d9.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.cac77111.css",
+    "static/js/main.bbe4b1a7.js"
+  ]
+}
