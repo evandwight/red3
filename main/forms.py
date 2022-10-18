@@ -24,4 +24,4 @@ class SearchForm(forms.Form):
 class ProfileForm(ModelForm):
     class Meta:
         model = Profile
-        fields = ['show_nsfw', "show_mean"]
+        fields = ['show_nsfw', "show_mean", "show_reddit_removed", "show_asocial", "show_political_junkie"]
