@@ -66,10 +66,10 @@ const FILTER_TAGS = ['mean', 'nsfw', 'reddit_removed', 'asocial', 'political_jun
 export function filterByProfile(thing, profile) {
     for (const tag in FILTER_TAGS) {
         if (thing[tag] && !profile[`show_${tag}`]) {
-            return true;
+            return false;
         }
     }
-    return false;
+    return true;
 }
 
 export function filterReason(thing, profile) {
