@@ -61,15 +61,24 @@ export function getCsrfToken() {
     return (document.querySelector('[name=csrfmiddlewaretoken]') as any)?.value;
 }
 
+const FILTER_TAGS = ['mean', 'nsfw', 'reddit_removed', 'asocial', 'political_junkie'];
+
 export function filterByProfile(thing, profile) {
-    return (!thing.mean || profile.show_mean) 
-    && (!thing.nsfw || profile.show_nsfw)
+    for (const tag in FILTER_TAGS) {
+        if (thing[tag] && !profile[`show_${tag}`]) {
+            return true;
+        }
+    }
+    return false;
 }
 
 export function filterReason(thing, profile) {
-    return (thing.mean && !profile.show_mean && "hidden_mean") 
-    || (thing.nsfw && !profile.show_nsfw && "hidden_nsfw")
-    || null;
+    for (const tag in FILTER_TAGS) {
+        if (thing[tag] && !profile[`show_${tag}`]) {
+            return `hidden_${tag}`;
+        }
+    }
+    return null;
 }
 
 export function commentTreeToList(nodes) {

@@ -13,7 +13,7 @@ from django.http import JsonResponse
 from django.urls import reverse
 from psaw import PushshiftAPI
 
-from main.models import Comment, Post
+from main.models import Comment, Post, Reputation
 from main.views.utils import ALL_LISTING_ORDER_BY, NEW
 
 from .views.utils import PostSerializer
@@ -180,8 +180,14 @@ def updatePostCache(sort):
     querySet = Post.objects.get_queryset() \
         .filter(created__gte=datetime.now(tz=timezone.utc) - timedelta(days=2)) \
         .order_by(sortVal)[:1000]
-    posts = [PostSerializer(post).data for post in list(querySet)]
+    posts = [addReputation(PostSerializer(post).data) for post in list(querySet)]
     cache.set(listingCacheKey(sort), {'list': posts}, 60*10)
+
+def addReputation(obj):
+    reputations = list(Reputation.objects.filter(user_name = obj['user_name']))
+    for reputation in reputations:
+        obj[reputation.tag] = reputation.value
+    return obj
 
 @shared_task
 def updatePostCacheAllSorts():

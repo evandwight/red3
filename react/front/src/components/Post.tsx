@@ -41,7 +41,7 @@ export function Thumbnail({ post }) {
 }
 
 export function Tags({ post }) {
-    const TAG_FIELDS = ['nsfw', 'mean', 'reddit_locked', 'removed_from_reddit'];
+    const TAG_FIELDS = ['nsfw', 'mean', 'reddit_locked', 'removed_from_reddit', 'asocial', 'political_junkie'];
     const activeFields = TAG_FIELDS.filter(field => post[field]);
     if (activeFields.length > 0) {
         return <div className="flex flex-row justify-around flex-wrap py-1">

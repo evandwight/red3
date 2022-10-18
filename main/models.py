@@ -71,6 +71,9 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     show_nsfw = models.BooleanField('Show nsfw', default=False)
     show_mean = models.BooleanField('Show mean', default=False)
+    show_reddit_removed = models.BooleanField('Show reddit_removed', default=False)
+    show_asocial = models.BooleanField('Show asocial', default=False)
+    show_political_junkie = models.BooleanField('Show political_junkie', default=False)
     ip_address = models.GenericIPAddressField(null=True)
 
     def __str__(self):
@@ -90,5 +93,16 @@ class Vote(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'thing_uuid'], name="unique_user_thing_combination"
+            )
+        ]
+
+class Reputation(models.Model):
+    user_name = models.TextField(null=False, blank=False)
+    tag = models.TextField(null=False, blank=False)
+    value = models.BooleanField(null=False, default=False)
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user_name', 'tag'], name="unique_user_name_tag_combination"
             )
         ]
