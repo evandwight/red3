@@ -91,7 +91,7 @@ class CommentTreeNode:
         return self.score < other.score
     def toDict(self):
         newDict = self.__dict__
-        newDict = addReputation(newDict)
+        newDict['comment'] = addReputation(newDict['comment'])
         newDict['children'] = [x.toDict() for x in self.children]
         return newDict
 
