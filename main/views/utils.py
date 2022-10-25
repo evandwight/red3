@@ -6,6 +6,7 @@ from django.db.models.functions import Abs, Extract, Greatest, Log, Sign
 from rest_framework import serializers
 
 from ..models import Comment, Post, Profile, Vote
+from ..tasks import addReputation
 
 ALL_LISTING_ORDER_BY = ((Extract(F("created"), 'epoch') - 1134028003)/45000 \
     + Log(10, Greatest(Abs(F("reddit_score") + F("score"))*2, 1))*Sign(F("reddit_score") + F("score"))) \
@@ -85,6 +86,7 @@ class CommentTreeNode:
         return self.score < other.score
     def toDict(self):
         newDict = self.__dict__
+        newDict = addReputation(newDict)
         newDict['children'] = [x.toDict() for x in self.children]
         return newDict
 

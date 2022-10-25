@@ -13,7 +13,7 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_http_methods
 
 from ..models import Comment, Post, Profile, Vote
-from ..tasks import listingCacheKey, loadRedditPostTask, updateRedditComments, addReputation
+from ..tasks import listingCacheKey, loadRedditPostTask, updateRedditComments
 from ..utils import rateLimit, rateLimitByIp
 from .utils import (ALL_LISTING_ORDER_BY, NEW, CommentSerializer, CommentTree,
                     PostSerializer, ProfileSerializer)
@@ -33,7 +33,6 @@ def commentsJson(request, pk):
     if not post:
         return HttpResponseNotFound
     comments = list(Comment.objects.filter(post_id=pk))
-    comments = [addReputation(comment) for comment in comments]
     commentTree = CommentTree(comments)
     return JsonResponse({'comments': [x.toDict() for x in commentTree.root]})
 
