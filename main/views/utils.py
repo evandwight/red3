@@ -5,8 +5,7 @@ from django.db.models import F
 from django.db.models.functions import Abs, Extract, Greatest, Log, Sign
 from rest_framework import serializers
 
-from ..models import Comment, Post, Profile, Vote
-from ..tasks import addReputation
+from ..models import Comment, Post, Profile, Vote, Reputation
 
 ALL_LISTING_ORDER_BY = ((Extract(F("created"), 'epoch') - 1134028003)/45000 \
     + Log(10, Greatest(Abs(F("reddit_score") + F("score"))*2, 1))*Sign(F("reddit_score") + F("score"))) \
@@ -30,6 +29,12 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = "__all__"
 
+
+def addReputation(obj):
+    reputations = list(Reputation.objects.filter(user_name = obj['user_name']))
+    for reputation in reputations:
+        obj[reputation.tag] = reputation.value
+    return obj
 
 class CommentTree:
     def __init__(self, comments):

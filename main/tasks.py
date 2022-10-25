@@ -16,7 +16,7 @@ from psaw import PushshiftAPI
 from main.models import Comment, Post, Reputation
 from main.views.utils import ALL_LISTING_ORDER_BY, NEW
 
-from .views.utils import PostSerializer
+from .views.utils import PostSerializer, addReputation
 import psutil
 
 logger = logging.getLogger(__name__)
@@ -182,12 +182,6 @@ def updatePostCache(sort):
         .order_by(sortVal)[:1000]
     posts = [addReputation(PostSerializer(post).data) for post in list(querySet)]
     cache.set(listingCacheKey(sort), {'list': posts}, 60*10)
-
-def addReputation(obj):
-    reputations = list(Reputation.objects.filter(user_name = obj['user_name']))
-    for reputation in reputations:
-        obj[reputation.tag] = reputation.value
-    return obj
 
 @shared_task
 def updatePostCacheAllSorts():
